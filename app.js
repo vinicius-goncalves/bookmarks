@@ -1,5 +1,5 @@
-import { MainContentDBManager } from './database/db-manager.js'
-import { insertNewItem, getItemById } from './database/dom-manipulation.js'
+import { insertNewItem, getItemById } from './database/db-manager.js'
+import { loadStoredItemsIntoDOM } from './database/dom-manipulation.js'
 
 const btnInsert = document.querySelector('[data-button="insert"]')
 const btnSearch = document.querySelector('[data-button="search"]')
@@ -27,7 +27,6 @@ function loadKeyboardShortcuts() {
 
     const searchAction = (event) => event.ctrlKey && event.altKey && event.key == 'Enter'
     const insertAction = (event) => event.ctrlKey && event.key == 'Enter'
-    // const openMenuAction = (event) => event.ctrlKey && event.key == 'm'
 
     window.addEventListener('keydown', (event) => {
       
@@ -64,5 +63,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     loadKeyboardShortcuts()
     removeOutlineOnKeyUp()
+    loadStoredItemsIntoDOM()
 
 })

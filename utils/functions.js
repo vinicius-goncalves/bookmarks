@@ -1,5 +1,13 @@
 export {
+    createIconElement,
     randomUUID
+}
+
+function createIconElement(GoogleMaterialIconsName, outlined = true) {
+    const span = document.createElement('span')
+    span.classList.add(outlined ? 'material-icons-outlined' : 'material-icons')
+    span.textContent = GoogleMaterialIconsName
+    return span
 }
 
 function randomUUID() {

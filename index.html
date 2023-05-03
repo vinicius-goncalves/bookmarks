@@ -40,7 +40,7 @@
                 padding: 25px;
             }
 
-            .insert-wrapper {
+            .content-manipulation-wrapper {
                 background-color: var(--main-color);
                 width: fit-content;
                 padding: 35px 20px;
@@ -49,7 +49,7 @@
                 margin: 15px;
             }
 
-            .insert-wrapper small {
+            .content-manipulation-wrapper small {
                 font-size: 1rem;
             }
 
@@ -101,8 +101,9 @@
 
             main.content {
                 display: flex;
+                flex-direction: column;
                 min-width: 100vw;
-                justify-content: center;
+                align-items: center;
                 text-align: center;
                 font-family: Arial, sans-serif;
                 font-size: 1.5rem;
@@ -114,8 +115,18 @@
                 width: 50%;
                 justify-content: space-between;
                 padding: 15px;
+                margin: 10px;
                 border-radius: 10px;
                 box-shadow: 10px 10px 15px #00000015;
+                text-align: left;
+                text-overflow: ellipsis;
+                word-break: break-all;
+            }
+
+            div.item-stored .icons-wrapper {
+                display: flex;
+                min-height: 100%;
+                align-items: center;
             }
 
             /* div.item-stored {
@@ -131,12 +142,18 @@
                 color: var(--main-color);
                 transition: color 200ms;
             }
+
+            span[data-tool="info"]:hover::before {
+                content: attr(data-id);
+                width: fit-content;
+                height: fit-content;
+            }
     
         </style>
     </head>
     <body>
         <div class="data-manipulation-wrapper heebo-font--apply">
-            <div class="insert-wrapper">
+            <div class="content-manipulation-wrapper">
                 <div class="insert-content">
                     <small>What would you like to add?</small>
                     <h1>Insert the content</h1>
@@ -153,26 +170,7 @@
             </menu>
         </div>
 
-        <main class="content">
-
-            <div class="item-stored" data-id="1234">
-                <div>
-                    <p class="item-store-name">Something here</p>
-                </div>
-                <div>
-                    <span class="material-icons-outlined icon-content-tools" data-tool="favorite">
-                        favorite_border
-                    </span>
-                    <span class="material-icons-outlined icon-content-tools" data-tool="bookmark">
-                        bookmark_border
-                    </span>
-                    <span class="material-icons-outlined icon-content-tools" data-tool="info">
-                        info
-                    </span>
-                </div>
-            </div>
-
-        </main>
+        <main class="content"></main>
 
         <script src="app.js" type="module"></script>
         <script src="database/indexedDB-utils.js" type="module"></script>
