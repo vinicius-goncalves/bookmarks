@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <title>Favorite Lists</title>
+        <meta charset="utf8">
+        <meta http-equiv="X-UA-Compatible" content="IE=7">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="follow, index">
+        <meta name="author" content="github@vinicius-goncalves.com">
+        <meta name="keywords" content="list, dashboard, insertion, favorites">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+        <style>
+
+            @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@100;200;300;400;500;600;700;800;900&family=Oxygen:wght@300;400;700&display=swap');
+
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+
+            :root {
+
+                font-size: 17px;
+
+                --main-color: #FFD600;
+                
+                --color4: #0D0D0D;
+                --color5: #FFFFFF;
+            }
+
+            .heebo-font--apply {
+                font-family: 'Heebo', sans-serif;
+                letter-spacing: 1.5px;
+            }
+
+            .data-manipulation-wrapper {
+                display: flex;
+                list-style: none;
+                width: 100%;
+                justify-content: center;
+                flex-direction: column;
+                align-items: center;
+                padding: 25px;
+            }
+
+            .insert-wrapper {
+                background-color: var(--main-color);
+                width: fit-content;
+                padding: 35px 20px;
+                border-radius: 10px;
+                box-shadow: 5px 5px 10px #00000015;
+                margin: 15px;
+            }
+
+            .insert-wrapper small {
+                font-size: 1rem;
+            }
+
+            .input-text--style {
+                outline: none;
+                border: none;
+                padding: 10px;
+                width: 500px;
+                font-family: inherit;
+                font-size: 1rem;
+                background-color: #F4F3FB;
+            }
+
+            body {
+                background-color: #F4F4F4;
+            }
+
+            menu {
+                list-style-type: none;
+                display: flex;
+            }
+
+            menu li {
+                font-size: 1.1rem;
+                font-family: 'Heebo';
+                letter-spacing: 1.5px;
+                margin: 0 10px;
+                cursor: pointer;
+                background-color: var(--main-color);
+                color: var(--color4);
+                padding: 10px;
+                width: 260px;
+                text-align: center;
+                border-radius: 5px;
+                user-select: none;
+            }
+
+            .add-outline,
+            menu li:active {
+                outline: 3px solid #0D0D0D;
+            }
+
+            /* li.active {
+                color: var(--main-color);
+            } */
+            span.kbd-wrapper--style {
+                font-size: .9rem;
+            }
+
+            main.content {
+                display: flex;
+                min-width: 100vw;
+                justify-content: center;
+                text-align: center;
+                font-family: Arial, sans-serif;
+                font-size: 1.5rem;
+            }
+
+            main.content div.item-stored {
+                background-color: #FFFFFF;
+                display: flex;
+                width: 50%;
+                justify-content: space-between;
+                padding: 15px;
+                border-radius: 10px;
+                box-shadow: 10px 10px 15px #00000015;
+            }
+
+            /* div.item-stored {
+                font-size: 1.5rem;
+            } */
+
+            span.icon-content-tools {
+                font-size: 1.8rem;
+                cursor: pointer;
+            }
+
+            span.icon-content-tools:hover {
+                color: var(--main-color);
+                transition: color 200ms;
+            }
+    
+        </style>
+    </head>
+    <body>
+        <div class="data-manipulation-wrapper heebo-font--apply">
+            <div class="insert-wrapper">
+                <div class="insert-content">
+                    <small>What would you like to add?</small>
+                    <h1>Insert the content</h1>
+                    <input class="input-text--style" type="text" data-input="content-manipulator" value="92d0cd35-402b-0d92-9d84-10ced18b5a21"/>
+                </div>
+            </div>
+            <menu>
+                <li data-button="insert">Insert 
+                    <span class="kbd-wrapper--style">[<kbd>Ctrl</kbd>+<kbd>Enter</kbd>]</span>
+                </li>
+                <li data-button="search">Search 
+                    <span class="kbd-wrapper--style">[<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Enter</kbd>]</span>
+                </li>
+            </menu>
+        </div>
+
+        <main class="content">
+
+            <div class="item-stored" data-id="1234">
+                <div>
+                    <p class="item-store-name">Something here</p>
+                </div>
+                <div>
+                    <span class="material-icons-outlined icon-content-tools" data-tool="favorite">
+                        favorite_border
+                    </span>
+                    <span class="material-icons-outlined icon-content-tools" data-tool="bookmark">
+                        bookmark_border
+                    </span>
+                    <span class="material-icons-outlined icon-content-tools" data-tool="info">
+                        info
+                    </span>
+                </div>
+            </div>
+
+        </main>
+
+        <script src="app.js" type="module"></script>
+        <script src="database/indexedDB-utils.js" type="module"></script>
+    </body>
+</html>
