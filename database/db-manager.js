@@ -4,7 +4,7 @@ import {
     makeDBMainContentTransaction,
 } from './indexedDB-utils.js'
 
-export { MainContentDBManager, insertNewItem, getItemById, getAll }
+export { MainContentDBManager, FavoritesDBManager, insertNewItem, getItemById, getAll }
 
 const utils = {
     regexValidator: new RegExp(/[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}/, 'gi')
@@ -80,7 +80,7 @@ const FavoritesDBManager = {
         const promise = new Promise(async (resolve) => {
             const itemFound = MainContentDBManager.get(id)
             if(!itemFound) {
-                console.log('Item with id', id, 'does not exists.')
+                console.log('Item with id', id, 'does not exists on main store.')
                 return
             }
 
@@ -93,7 +93,28 @@ const FavoritesDBManager = {
 
     get: function get(id) {
         const promise = new Promise(async (resolve) => {
-            // const store = await makeDBFavoritesTransaction('readwrite')
+            
+            const store = await makeDBFavoritesTransaction()
+            const keyRange = IDBKeyRange.only(id)
+            const request = store.get(keyRange)
+
+            const res = (event) => event.target.result ? { isFavorite: true } : { isFavorite : false }
+            request.onsuccess = (event) => resolve(res(event))
         })
+        return promise
+    },
+
+    remove: function remove(id) {
+        const promise = new Promise(async (resolve) => {
+
+            const store = await makeDBFavoritesTransaction('readwrite')
+            const keyRange = IDBKeyRange.only(id)
+            const request = store.delete(keyRange)
+            
+            const res = () => ({ deleted: true })
+            request.onsuccess = () => resolve(res())
+
+        })
+        return promise
     }
 }

@@ -14,6 +14,7 @@
             @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@100;200;300;400;500;600;700;800;900&family=Oxygen:wght@300;400;700&display=swap');
 
             * { margin: 0; padding: 0; box-sizing: border-box; }
+            .material-icons-outlined { user-select: none; }
 
             :root {
 
@@ -143,12 +144,10 @@
                 transition: color 200ms;
             }
 
-            span[data-tool="info"]:hover::before {
-                content: attr(data-id);
-                width: fit-content;
-                height: fit-content;
+            span.icon-content-tools::target-text {
+                background-color: red;
             }
-    
+
         </style>
     </head>
     <body>
@@ -161,10 +160,10 @@
                 </div>
             </div>
             <menu>
-                <li data-button="insert">Insert 
+                <li data-button="insert">Insert
                     <span class="kbd-wrapper--style">[<kbd>Ctrl</kbd>+<kbd>Enter</kbd>]</span>
                 </li>
-                <li data-button="search">Search 
+                <li data-button="search">Search
                     <span class="kbd-wrapper--style">[<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Enter</kbd>]</span>
                 </li>
             </menu>

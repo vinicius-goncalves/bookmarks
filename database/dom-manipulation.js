@@ -1,9 +1,22 @@
-import { MainContentDBManager } from './db-manager.js'
+import { MainContentDBManager, FavoritesDBManager } from './db-manager.js'
 import { createIconElement } from '../utils/functions.js'
 
 export { loadStoredItemsIntoDOM }
 
 const main = document.querySelector('main.content')
+
+function updateDOMIcon(id, iconToUpdate, newIcon) {
+
+    const dataId = `[data-id="${id}"]`
+    
+    const element = document.querySelector(dataId)
+    if(!element.matches(dataId)) {
+        return
+    }
+
+    const iconIntoElement = element.querySelector(`[data-tool="${iconToUpdate}"]`)
+    iconIntoElement.textContent = newIcon
+}
 
 const toolsHandle = {
 
@@ -11,8 +24,22 @@ const toolsHandle = {
 
         const { id, content, createdAt } = storedObject
         
-        element.addEventListener('click', () => {
-            console.log(id, content, createdAt)
+        element.addEventListener('click', async () => {
+            const queryRes = await FavoritesDBManager.get(id)
+            if(queryRes.isFavorite) {
+                await FavoritesDBManager.remove(id)
+                updateDOMIcon(id, 'favorite', 'favorite_border')
+                return
+            }
+
+            const res = await FavoritesDBManager.put(id)
+            
+            if(!res.added) {
+                console.log('An error has occurred when tried to add', id, 'to favorites.')
+                return
+            }
+
+            updateDOMIcon(id, 'favorite', 'favorite')
         })
     },
 
@@ -48,7 +75,7 @@ function bulkToolCreator(storedObject, ...GoogleMaterialIconsName) {
     return toolsCreated
 }
 
-function renderStoredElement(storedObject) {
+async function renderStoredElement(storedObject) {
 
     const { id, content } = storedObject
 
@@ -65,7 +92,15 @@ function renderStoredElement(storedObject) {
     const iconsWrapper = document.createElement('div')
     iconsWrapper.classList.add('icons-wrapper')
 
-    const iconsElementCreated = bulkToolCreator(storedObject, 'favorite_border', 'bookmark_border', 'info')
+    const { isFavorite } = await FavoritesDBManager.get(id)
+
+    const toolsToCreate = [
+        isFavorite ? 'favorite' : 'favorite_border',
+        'bookmark_border',
+        'info'
+    ]
+
+    const iconsElementCreated = bulkToolCreator(storedObject, ...toolsToCreate)
     iconsElementCreated.forEach(icon => iconsWrapper.appendChild(icon))
 
     divItemStored.appendChild(headerWrapper)
@@ -80,7 +115,7 @@ async function loadStoredItemsIntoDOM() {
     const storedItems = await MainContentDBManager.getAll()
 
     const fragment = document.createDocumentFragment()
-    storedItems.forEach(item => fragment.appendChild(renderStoredElement(item)))
-
+    const resolvedItems = await Promise.all(storedItems.map(item => renderStoredElement(item)))
+    resolvedItems.forEach(item => fragment.appendChild(item))
     main.appendChild(fragment)
 }

@@ -64,5 +64,4 @@ window.addEventListener('DOMContentLoaded', () => {
     loadKeyboardShortcuts()
     removeOutlineOnKeyUp()
     loadStoredItemsIntoDOM()
-
 })

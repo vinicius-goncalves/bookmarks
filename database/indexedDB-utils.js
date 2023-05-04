@@ -4,60 +4,50 @@ export {
 }
 
 const DB_NAME = 'bookmarks'
+const db = indexedDB.open(DB_NAME, 1)
 
-function openDBStore(storeName) {
+const dbPromise = new Promise(resolve => {
 
-    const db = indexedDB.open(DB_NAME, 1)
+    db.addEventListener('success', (event) => {
+        const dbResult = event.target.result
+        resolve(dbResult)
+    })
     
-    const dbPromise = new Promise(resolve => {
-    
-        db.addEventListener('success', (event) => {
-            const dbResult = event.target.result
-            resolve(dbResult)
-        })
+    db.addEventListener('upgradeneeded', (event) => {
         
-        db.addEventListener('upgradeneeded', (event) => {
-            
-            const dbResult = event.target.result
+        const dbResult = event.target.result
+
+        const mainContentIndexSettings = {
+            0: ['createdAt-index', 'createdAt', { unique: false }],
+            1: ['content-index', 'content', { unique: false }],
+            2: ['id-index', 'id', { unique: true }]
+        }
+        
+        const favoritesIndexSettings = {
+            0: ['id-index', 'id', { unique: true }]
+        }
+
+        const storesSettings = [
+            ['main-content', { keyPath: 'id' }, mainContentIndexSettings],
+            ['favorites', { keyPath: 'id' }, favoritesIndexSettings]
+        ]
     
-            const mainContentIndexSettings = {
-                0: ['createdAt-index', 'createdAt', { unique: false }],
-                1: ['content-index', 'content', { unique: false }],
-                2: ['id-index', 'id', { unique: true }]
-            }
-            
-            const favoritesIndexSettings = {
-                0: ['id-index', 'id', { unique: true }]
-            }
+        storesSettings.forEach(storeSettings => {
 
-            const storeSettings = new Map([
-                ['main-content', mainContentIndexSettings],
-                ['favorites', favoritesIndexSettings]
-            ])
+            const [ storeName, keyPath, indexSettings ] = storeSettings
 
-            const storeSettingsGenericArr = [...storeSettings.values()]
-            const storeFound = storeSettingsGenericArr.find(([ store ]) => store == storeName)
-            
-            if(!storeFound) {
-                return
-            }
+            if(!dbResult.objectStoreNames.contains(storeName)) {
 
-            const [ store, indexSettings ] = storeFound
-    
-            if(!dbResult.objectStoreNames.contains(store)) {
-                const store = dbResult.createObjectStore(store, { keyPath: 'id' })
-                
+                const store = dbResult.createObjectStore(storeName, keyPath)
                 const indexesSettingsValues = Object.values(indexSettings)
                 indexesSettingsValues.forEach(settings => store.createIndex(...settings))
             }
         })
     })
-
-    return dbPromise
-}
+})
 
 const startDBTransaction = (storeName) => async (mode = 'readonly') => {
-    const db = await openDBStore(storeName)
+    const db = await dbPromise
     const transaction = db.transaction(storeName, mode)
     const store = transaction.objectStore(storeName)
     return store
