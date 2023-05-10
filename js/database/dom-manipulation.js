@@ -1,9 +1,9 @@
 import { MainContentDBManager, FavoritesDBManager } from './db-manager.js'
 import { createIconElement } from '../utils/functions.js'
 
-export { loadStoredItemsIntoDOM }
+export { loadStoredItemsIntoDOM, renderStoredElement }
 
-const main = document.querySelector('main.content')
+const mainContent = document.querySelector('main.content')
 
 function updateDOMIcon(id, iconToUpdate, newIcon) {
 
@@ -20,40 +20,33 @@ function updateDOMIcon(id, iconToUpdate, newIcon) {
 
 const toolsHandle = {
 
-    favorite: function(storedObject, element) {
+    favorite(storedObject, element) {
 
-        const { id, content, createdAt } = storedObject
+        const { id } = storedObject
         
         element.addEventListener('click', async () => {
-            const queryRes = await FavoritesDBManager.get(id)
-            if(queryRes.isFavorite) {
+
+            const { isFavorite } = await FavoritesDBManager.get(id)
+            
+            if(isFavorite) {
                 await FavoritesDBManager.remove(id)
                 updateDOMIcon(id, 'favorite', 'favorite_border')
                 return
             }
 
-            const res = await FavoritesDBManager.put(id)
+            const { added } = await FavoritesDBManager.put(id)
             
-            if(!res.added) {
-                console.log('An error has occurred when tried to add', id, 'to favorites.')
+            if(!added) {
+                console.log(`An error has occurred when tried to add "${id}" to favorites.`)
                 return
             }
 
             updateDOMIcon(id, 'favorite', 'favorite')
         })
     },
-
     
-    bookmark: function(storedObject, element) {
-        
-    },
-
-    info: function(storedObject, element) {
-
-        element.addEventListener('mouseenter', () => {
-            
-        })
-    },
+    bookmark(storedObject, element) {},
+    info(storedObject, element) {}
 }
 
 function bulkToolCreator(storedObject, ...GoogleMaterialIconsName) {
@@ -66,8 +59,11 @@ function bulkToolCreator(storedObject, ...GoogleMaterialIconsName) {
         toolCreated.classList.add('icon-content-tools')
         toolCreated.dataset.tool = toolName
 
-        const [ _, loadToolListenerTo ] = Object.entries(toolsHandle).find(([ prop ]) => prop == toolName)
-        loadToolListenerTo(storedObject, toolCreated)
+        const [ _, loadListener ] = Object
+            .entries(toolsHandle)
+            .find(([ funcName ]) => funcName == toolName)
+
+        loadListener(storedObject, toolCreated)
 
         return toolCreated
     })
@@ -117,5 +113,5 @@ async function loadStoredItemsIntoDOM() {
     const fragment = document.createDocumentFragment()
     const resolvedItems = await Promise.all(storedItems.map(item => renderStoredElement(item)))
     resolvedItems.forEach(item => fragment.appendChild(item))
-    main.appendChild(fragment)
+    mainContent.appendChild(fragment)
 }
