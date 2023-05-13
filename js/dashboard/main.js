@@ -4,31 +4,6 @@ import { loadFavorites } from './sections/favorites.js'
 const dashboardWrapper = document.querySelector('.dashboard-wrapper')
 const dashboardContent = dashboardWrapper.querySelector('.dashboard-content')
 
-function loadSectionFeatures(sectionName) {
-    
-    const featuresMap = [...new Map([
-        [ 'advanced_search', loadAdvancedFilterFunctions ],
-        [ 'bookmarks', null ],
-        [ 'favorites', loadFavorites ]
-    ]).entries()]
-
-    const [ _, invokeFunction ] = featuresMap.find(([ funcName ]) => funcName === sectionName)
-    
-    try {
-        invokeFunction()
-        return { invoked: true }
-    } catch(err) {
-        return { invoked: false, err }
-    }
-} 
-
-const getSectionTarget = (sectionTarget) => document.querySelector(`[data-section="${sectionTarget}"]`)
-
-function hideAllSections() {
-    const allSections = document.querySelectorAll('[data-section]')
-    allSections.forEach(({ style }) => style.display = 'none')
-}
-
 function getActiveSection() {
     const currentSection = document.querySelector('[data-section-showing="true"]')
     return currentSection
@@ -53,6 +28,31 @@ function changeActiveActionTo(target) {
 
     return res
 }
+
+const getSectionTarget = (sectionTarget) => document.querySelector(`[data-section="${sectionTarget}"]`)
+
+function hideAllSections() {
+    const allSections = document.querySelectorAll('[data-section]')
+    allSections.forEach(({ style }) => style.display = 'none')
+}
+
+function loadSectionFeatures(sectionName) {
+    
+    const featuresMap = [
+        [ 'advanced_search', loadAdvancedFilterFunctions ],
+        [ 'bookmarks', null ],
+        [ 'favorites', loadFavorites ]
+    ]
+
+    const [ _, invokeFunction ] = featuresMap.find(([ funcName ]) => funcName === sectionName)
+    
+    try {
+        invokeFunction()
+        return { invoked: true }
+    } catch(err) {
+        return { invoked: false, err }
+    }
+} 
 
 function handleWithSectionTargets(target) {
 
@@ -86,5 +86,4 @@ dashboardContent.addEventListener('click', (({ target }) => {
 
 window.addEventListener('DOMContentLoaded', () => {
     handleWithSectionTargets(getActiveSection())
-    loadAdvancedFilterFunctions()
 })

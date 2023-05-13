@@ -1,34 +1,102 @@
 
-import { MainContentDBManager } from './db-manager.js'
+import { FavoritesDBManager, MainContentDBManager } from './db-manager.js'
+
+export { handleWithQueryParams }
+
+
+const arrMethods = {
+    push(arr, elements) {
+        Array.prototype.push.call(arr, ...elements)
+    }
+}
 
 async function handleWithQueryParams(url) {
+    
     
     if(!(url instanceof URL)) {
         throw new TypeError()
     }
+    
+    let globalArr = []
 
     const query = url.searchParams
-    const globalArr = []
+    const favoriteItems = await FavoritesDBManager.getAll()
+    const allItems = await MainContentDBManager.getAll()
+    // const hasSomeTimeFilter = ['orderBy'].some(timeFilter => query.has(timeFilter))
+
+    if(query.size === 0) {
+        return Object(allItems)
+    }
 
     if(query.has('orderBy')) {
 
         const orderByValue = query.get('orderBy')
         const storeQueryResult = await MainContentDBManager.getByIndex('createdAt-index')
 
-        if(orderByValue === 'newest') {
-            
+        function newestFunction() {
             const sortedByNewest = storeQueryResult.sort((a, b) => b.createdAt - a.createdAt)
-            Array.prototype.push.apply(globalArr, sortedByNewest)
+            arrMethods.push(globalArr, sortedByNewest)
         }
-        
-        if(orderByValue === 'oldest') {
-            Array.prototype.push.apply(globalArr, storeQueryResult)
+
+        function oldestFunction() {
+            arrMethods.push(globalArr, storeQueryResult)
+        }
+
+        switch(orderByValue) {
+            case 'newest':
+                newestFunction()
+                break
+            case 'oldest':
+                oldestFunction()
+                break
         }
     }
 
-    globalArr.forEach(({ createdAt }) =>  {
-        console.log(new Date(createdAt))
-    })
+    if(query.has('maxTime')) {
+
+        if(!query.has('orderBy')) {
+            globalArr = Object(allItems)
+        }
+
+        globalArr = globalArr.filter(({ createdAt }) => createdAt <= +query.get('maxTime'))
+
+    }
+
+    if(query.has('isFavorite')) {
+
+        const isFavoriteValue = Boolean(query.get('isFavorite') === 'false' ? 0 : 1)
+
+        function getFavoritesThroughBoolean(shouldBeTrue = true) {
+
+            const { res } = favoriteItems
+
+            globalArr = globalArr.filter(({ ['id']: storedItemId }) => {
+                const indexFound = res.findIndex(({ ['id']: storedFavId }) => storedFavId == storedItemId)
+                if(shouldBeTrue) {
+                    return indexFound > -1 ? true : false
+                } else {
+                    return indexFound < 0 ? true : false
+                }
+            })
+        }
+        
+        switch(isFavoriteValue) {
+            case true:
+                getFavoritesThroughBoolean(1)
+                break
+            case false:
+                getFavoritesThroughBoolean(0)
+                break
+        }
+    }
+
+    if(query.has('shouldContain')) {
+        const shouldContainValue = query.get('shouldContain')
+        globalArr = globalArr.filter(({ content }) => content
+            .toLowerCase().includes(shouldContainValue.toLowerCase()))
+    }
+    
+    return globalArr
 }
 
 window.onload = () => {
@@ -37,11 +105,10 @@ window.onload = () => {
     // locationManager.pathname = 'query'
 
     const query = locationManager.searchParams
-    // query.set('orderBy', 'newest')
-    query.set('isFavorite', 'false')
+    // query.set('fromTime', '1683832790601')
+    // query.set('isFavorite', 'true')
 
-    window.history.replaceState(null, '', locationManager)
+    // window.history.replaceState(null, '', locationManager)
 
-    handleWithQueryParams(locationManager)
-
+    // handleWithQueryParams(locationManager)
 }

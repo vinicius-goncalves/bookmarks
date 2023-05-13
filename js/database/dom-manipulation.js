@@ -8,8 +8,8 @@ const mainContent = document.querySelector('main.content')
 function updateDOMIcon(id, iconToUpdate, newIcon) {
 
     const dataId = `[data-id="${id}"]`
-    
     const element = document.querySelector(dataId)
+    
     if(!element.matches(dataId)) {
         return
     }

@@ -23,6 +23,7 @@
                 font-size: 17px;
 
                 --main-color: #FFD600;
+                --border-color: #CCCCCC;
                 
                 --color4: #0D0D0D;
                 --color5: #FDFDFD;
@@ -282,12 +283,10 @@
 
             section[data-section="advanced_search"] .filter-wrapper {
                 position: absolute;
-                background-color: var(--main-color);
-                padding: 10px;
                 right: -11%;
                 bottom: -11%;
                 cursor: pointer;
-                border-radius: 13px;
+                border-radius: 50%;
                 text-transform: uppercase;
                 transition: opacity 200ms;
             }
@@ -303,9 +302,12 @@
                 justify-content: center;
             }
 
-            .filter-content .material-icons-outlined {
+            .filter-content .filter-content-icon {
                 margin: 0 5px;
                 font-size: 2rem;
+                background-color: var(--main-color);
+                padding: 10px;
+                border-radius: 50%;
             }
 
             section div.item-stored {
@@ -348,9 +350,204 @@
                 }
             }
 
+            /*
+            */
+
+            div.filter-options-wrapper,
+            ul.query-values {
+                font-family: 'Heebo', sans-serif;
+            }
+            
+            ul.query-values {
+                position: absolute;
+                z-index: 3;
+                font-size: 1.5rem;
+                background-color: var(--main-color);
+                list-style: none;
+                border: 1px solid var(--color4);
+            }
+            
+            ul.query-values li {
+                padding: 10px;
+            }
+
+            ul.query-values li:hover {
+                padding: 10px;
+                color: var(--color5);
+                cursor: pointer;
+            }
+
+            div.filter-options-wrapper {
+                min-width: 100vw;
+                min-height: 100vh;
+                background-color: #00000091;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                z-index: 2;
+                overflow: hidden;
+            }
+
+            button[data-button="add-new-filter"] {
+                position: absolute;
+                bottom: 10px;
+                right: 15px;
+                border-radius: 50%;
+                background-color: #7938b6;
+                border: none;
+                padding: 15px;
+                cursor: pointer;
+                transition: transform 200ms;
+                color: #FFFFFF;
+            }
+
+            button[data-button="add-new-filter"]:hover {
+                transform: scale(1.5)
+            }
+
+            button[data-button="add-new-filter"] .material-icons-outlined {
+                font-size: 2rem;
+            }
+
+            div.filter-options-content {
+                width: 80vw;
+                height: 80vh;
+                background-color: #E8E9EA;
+                border-radius: 10px;
+                box-shadow: 10px 15px 20px #0d0d0d46;
+                position: relative;
+            }
+
+            div.info-section {
+                margin: 25px;
+            }
+
+            div.filter-options-content span[data-close-target="filter-options-wrapper"] {
+                cursor: pointer;
+                font-size: 2rem;
+                position: absolute;
+                right: 10px;
+                top: 10px;
+                transition: color 200ms;
+            }
+
+            div.filter-options-content span[data-close-target="filter-options-wrapper"]:hover {
+                color: #b90606;
+            }
+
+            div.filters {
+                margin: 50px 10px;
+                user-select: none;
+                border: 1px solid var(--border-color);
+                border-radius: 10px;
+                padding: 15px;
+            }
+            
+            button.add-filter {
+                width: 250px;
+                padding: 10px;
+                font-size: 1.3rem;
+                margin: 10px 0;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            button.add-filter .material-icons-outlined {
+                margin: 0 10px;
+                background-color: #7938b6;
+                border-radius: 50%;
+                padding: 5px;
+            }
+
+            div.individual-filter {
+                font-size: 1.5rem;
+                border-radius: 10px;
+                padding: 5px 25px;
+                width: 10px;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-align: center;
+                width: inherit;
+            }
+
+            div.individual-filter div.middle-text {
+                font-weight: bold;
+            }
+
+            div.temp-filter-options-wrapper {
+                font-family: 'Heebo', sans-serif;
+                position: absolute;
+                z-index: 3;
+                top: 300px;
+            }
+
+            div.temp-filter-options-wrapper ul.filter-options {
+                list-style-type: none;
+                background-color: #7938b6;
+                color: var(--color5);
+                text-align: center;
+                border-radius: 10px;
+                overflow: hidden;
+                font-size: 1.3rem;
+            }
+
+            ul.filter-options li {
+                padding: 10px;
+                width: 300px;
+            }
+
+            ul.filter-options li:hover {
+                background-color: #b769ff;
+            }
+
+            ul.filter-options li:hover {
+                cursor: pointer;
+                color: var(--color5);
+            }
+
+            div[data-filter="first-selection"],
+            div[data-filter="second-selection"] {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid #7938b6;
+                padding: 10px;
+                margin: 3px;
+            }
+
+            div[data-filter="first-selection"] {
+                width: 250px;
+            }
+
+            div[data-filter="first-selection"]:hover,
+            div[data-filter="second-selection"]:hover {
+                background-color: #7938b6;
+                color: var(--color5);
+            }
+
+
         </style>
     </head>
     <body>
+        <div class="filter-options-wrapper" data-close="filter-options-wrapper">
+            <button data-button="add-new-filter">
+                <span class="material-icons-outlined">add</span>
+            </button>
+            <div class="filter-options-content">
+                <div class="info-section">
+                    <h1>Filter</h1>
+                    <p>To add a filter option, click on (+) button, on the bottom right corner.</p>
+                    <small style="color: #6B707B;">It is only possible to add one filter per time.</small>
+                </div>
+                <span class="material-icons-outlined" data-close-target="filter-options-wrapper">close</span>
+                <div class="filters"></div>
+            </div>
+        </div>
         <div class="dashboard-wrapper" data-close="dashboard-wrapper">
             <div class="back-wrapper" data-close-target="dashboard-wrapper">
                 <span class="material-icons-outlined">arrow_back</span>
@@ -383,9 +580,9 @@
                     <section data-section="advanced_search" style="display: none;">
                         <div class="filter-wrapper">
                             <div class="filter-content">
-                                <span class="material-icons-outlined">filter_list</span>
+                                <span class="material-icons-outlined filter-content-icon">manage_search</span>
                             </div>
-                        </div>    
+                        </div>
                     </section>
                     <section data-section="bookmarks" style="display: none;"></section>
                     <section data-section="favorites" style="display: none;"></section>
