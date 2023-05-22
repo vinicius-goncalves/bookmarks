@@ -34,10 +34,9 @@
             </div>
         </div>
         <div class="dashboard-wrapper" data-close="dashboard-wrapper" style="display: none;">
-            <div class="back-wrapper" data-close-target="dashboard-wrapper">
+            <button class="back-to-initial-page" data-close-target="dashboard-wrapper">
                 <span class="material-icons-outlined">arrow_back</span>
-                <span class="back-message">Home</span>
-            </div>
+            </button>
             <div class="dashboard-content">
                 <header>
                     <nav>
@@ -62,7 +61,7 @@
                     </nav>
                 </header>
                 <section class="sections">
-                    <section data-section="advanced_search" style="display: none;">
+                    <div data-section="advanced_search" style="display: none;">
                         <div class="filter-wrapper">
                             <div class="filter-content">
                                 <button class="filter-content-icon float-button--style">
@@ -72,9 +71,9 @@
                                 </button>
                             </div>
                         </div>
-                    </section>
-                    <section data-section="bookmarks" style="display: none;"></section>
-                    <section data-section="favorites" style="display: none;"></section>
+                    </div>
+                    <div data-section="bookmarks" style="display: none;"></div>
+                    <div data-section="favorites" style="display: none;"></div>
                 </section>
             </div>
         </div>

@@ -7,9 +7,15 @@ import {
 
 export { MainContentDBManager, FavoritesDBManager, insertNewItem, getItemById, getAll }
 
-// const utils = {
-//     regexValidator: new RegExp(/[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}/, 'gi')
-// }
+const GenericDBManager = {
+    getStoreLength: function(requestResult) {
+
+        return createPromise(async (resolve) => {
+            const res = requestResult.isLengthZero ? 0 : requestResult.res.length 
+            resolve(res)
+        })
+    }
+}
 
 const MainContentDBManager = {
 
@@ -28,34 +34,12 @@ const MainContentDBManager = {
     get(id) {
 
         return createPromise(async (resolve) => {
-                
-                // if(!utils.regexValidator.test(id)) {
-                //     return
-                // }
-
                 const store = await makeDBMainContentTransaction()
                 const key = IDBKeyRange.only(id)
                 const request = store.get(key)
 
-                request.onsuccess = (event) => resolve(event.target.result)       
-            // }             
+                request.onsuccess = (event) => resolve(event.target.result)                   
         })
-        // return createPromise(async (resolve) => {
-            
-        //     const store = await makeDBMainContentTransaction()
-        //     const request = store.openCursor()
-        //     request.addEventListener('success', (event) => {
-        //         const cursor = event.target.result
-        //         if(!cursor) {
-        //             resolve({ finished: true, resultFound: 0 })
-        //         }
-
-        //         if(cursor.value.id === id) {
-        //             resolve({ finished: true, resultFound: 1, result: cursor.value })
-        //         }
-        //         cursor.continue()
-        //     })
-        // })
     },
 
     getByIndex(indexName) {
@@ -76,6 +60,13 @@ const MainContentDBManager = {
             request.onsuccess = (event) => resolve(event.target.result)
         })
         return promise
+    },
+
+    get length() {
+        return (async () => {
+            const requestResult = await this.getAll()
+            return GenericDBManager.getStoreLength(requestResult)
+        })()
     },
 
     bulkSearch(...ids) {
@@ -132,12 +123,10 @@ const FavoritesDBManager = {
     },
 
     get length() {
-        return createPromise(async (resolve) => {
-            
+        return (async () => {
             const requestResult = await this.getAll()
-            const res = requestResult.isLengthZero ? 0 : requestResult.res.length
-            resolve(res)
-        })
+            return GenericDBManager.getStoreLength(requestResult)
+        })()
     },
 
     put(id) {

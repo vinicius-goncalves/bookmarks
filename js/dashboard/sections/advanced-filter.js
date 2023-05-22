@@ -7,7 +7,7 @@ export { loadAdvancedFilterFunctions }
 
 const mainContent = document.querySelector('main.content')
 const childrenFromMainContent = mainContent.children
-const advancedSearchSection = document.querySelector('section[data-section="advanced_search"]')
+const advancedSearchSection = document.querySelector('[data-section="advanced_search"]')
 
 const filters = document.querySelector('.filters')
 
