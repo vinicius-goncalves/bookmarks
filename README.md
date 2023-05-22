@@ -10,7 +10,7 @@ Navegue pelos tópicos.
 
 [comment]: <> (Topics)
 
-[1]: <#🤔-o-que-é> "O que é"
+[1]: <#🤔-o-que-é?> "O que é"
 [2]: <#🚀-instalação> "Instalação"
 
 ---
