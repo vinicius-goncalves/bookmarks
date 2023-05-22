@@ -7,11 +7,13 @@ Navegue pelos tópicos.
 
  - [O que é?][1]
  - [Instalação][2]
+ - [Uso][3]
 
 [comment]: <> (Topics)
 
-[1]: <#o-que-é?> "O que é"
-[2]: <#instalação> "Instalação"
+[1]: <#o-que-é?>
+[2]: <#instalação>
+[3]: <#como-utilizar>
 
 ---
 
@@ -25,7 +27,7 @@ Navegue pelos tópicos.
 ### Instalação
 Para utilizar a ferramenta não é necessário nenhuma instalação, o projeto é todo feito com JavaScript Vanilla.
 
-### Uso
+### Como utilizar
 Acesse a ferramenta através clicando [neste link][deploy-actived].
 
 [deploy-actived]: <https://vinicius-goncalves.github.io/bookmarks/>
