@@ -9,28 +9,6 @@ function getActiveSection() {
     return currentSection
 }
 
-function changeActiveActionTo(target) {
-
-    if(!target || !(target instanceof Node)) {
-        throw new Error('It was not possible to change the target. Verify if "target" is a valid DOM node.')
-    }
-
-    const res = { sectionTarget: target.getAttribute('data-section-target') }
-
-    if(target.getAttribute('data-section-showing') == true) {
-        return { sectionTarget: target.getAttribute('data-section-target') }
-    }
-
-    const currentSection = document.querySelector('[data-section-showing="true"]')
-    currentSection.setAttribute('data-section-showing', false)
- 
-    target.setAttribute('data-section-showing', true)
-
-    return res
-}
-
-const getSectionTarget = (sectionTarget) => document.querySelector(`[data-section="${sectionTarget}"]`)
-
 function hideAllSections() {
     const allSections = document.querySelectorAll('[data-section]')
     allSections.forEach(({ style }) => style.display = 'none')
@@ -52,7 +30,25 @@ function loadSectionFeatures(sectionName) {
     } catch(err) {
         return { invoked: false, err }
     }
-} 
+}
+
+const getSectionTarget = (sectionTarget) => document.querySelector(`[data-section="${sectionTarget}"]`)
+
+function changeActiveActionTo(newTarget) {
+
+    if(!newTarget || !(newTarget instanceof Node)) {
+        throw new Error('It was not possible to change the target. Verify if "target" is a valid DOM node.')
+    }
+
+    
+    const currentSection = document.querySelector('[data-section-showing="true"]')
+    currentSection.setAttribute('data-section-showing', false)
+    
+    newTarget.setAttribute('data-section-showing', true)
+    
+    const targetResult = { sectionTarget: newTarget.getAttribute('data-section-target') }
+    return targetResult
+}
 
 function handleWithSectionTargets(target) {
 

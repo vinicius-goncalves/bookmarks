@@ -2,9 +2,10 @@ import { createLoader, hasElementRendered } from '../../utils/functions.js'
 import { FavoritesDBManager, MainContentDBManager } from '../../database/db-manager.js'
 import { renderStoredElement } from '../../database/dom-manipulation.js'
 
-export { loadFavorites }
+export { loadFavorites, updateFavoritesLength }
 
 const favoritesSection = document.querySelector('[data-section="favorites"]')
+const favoriteSectionOption = document.querySelector('[data-section-option="favorites"]')
 
 async function loadFavorites() {
 
@@ -28,3 +29,11 @@ async function loadFavorites() {
 
     loader.remove()
 }
+
+async function updateFavoritesLength() {
+    console.log(await FavoritesDBManager.getAll())
+    const favoritesLength = await FavoritesDBManager.length
+    favoriteSectionOption.setAttribute('data-favorites-length', favoritesLength)
+}
+
+window.addEventListener('load', () => updateFavoritesLength())

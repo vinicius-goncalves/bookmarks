@@ -122,12 +122,21 @@ const FavoritesDBManager = {
             const store = await makeDBFavoritesTransaction()
             const request = store.getAll()
             
-            const res = (result) => result.length === 0 
+            const handleWithRequestResult = (result) => result.length === 0 
                 ? { isLengthZero: true, res: [] } 
                 : { isLengthZero: false, res: result }
 
-            request.onsuccess = ({ target }) => resolve(res(target.result))
+            request.onsuccess = ({ target }) => resolve(handleWithRequestResult(target.result))
             request.onerror = () => reject(`An error has occurred when tried to get all items`)
+        })
+    },
+
+    get length() {
+        return createPromise(async (resolve) => {
+            
+            const requestResult = await this.getAll()
+            const res = requestResult.isLengthZero ? 0 : requestResult.res.length
+            resolve(res)
         })
     },
 

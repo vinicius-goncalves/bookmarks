@@ -1,0 +1,189 @@
+[data-section-option="favorites"]::after {
+    content: attr(data-favorites-length);
+    font-weight: bold;
+    background-color: #E8E9EA;
+    color: #6B707B;
+    margin: 5px;
+    padding: 0 10px;
+}
+
+div.filter-options-wrapper {
+    font-family: 'Heebo', sans-serif;
+}
+
+div.filter-options-wrapper {
+    min-width: 100vw;
+    min-height: 100vh;
+    background-color: #00000091;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    z-index: 2;
+    overflow: hidden;
+}
+
+/*
+* Float icons for advanced filter
+*/
+div.filter-float-icons {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+div.filter-float-icons button {
+    border-radius: 50%;
+    background-color: #7938b6;
+    border: none;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 200ms;
+    color: #FFFFFF;
+    margin: 10px;
+}
+
+div.filter-float-icons button:hover {
+    transform: scale(1.5)
+}
+
+div.filter-float-icons .icon {
+    font-size: 2rem;
+}
+
+div.filter-options-content {
+    width: 80vw;
+    height: 80vh;
+    background-color: #E8E9EA;
+    border-radius: 10px;
+    box-shadow: 10px 15px 20px #0d0d0d46;
+    position: relative;
+}
+
+div.info-section {
+    margin: 25px;
+}
+
+div.filter-options-content span[data-close-target="filter-options-wrapper"] {
+    cursor: pointer;
+    font-size: 2rem;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    transition: color 200ms;
+}
+
+div.filter-options-content span[data-close-target="filter-options-wrapper"]:hover {
+    color: #b90606;
+}
+
+div.filters {
+    margin: 50px 10px;
+    user-select: none;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+button.add-filter {
+    width: 250px;
+    padding: 10px;
+    font-size: 1.3rem;
+    margin: 10px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button.add-filter .material-icons-outlined {
+    margin: 0 10px;
+    background-color: #7938b6;
+    border-radius: 50%;
+    padding: 5px;
+}
+
+div.individual-filter {
+    font-size: 1.5rem;
+    border-radius: 10px;
+    padding: 5px 25px;
+    width: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    width: inherit;
+}
+
+div.individual-filter div.middle-text {
+    font-weight: bold;
+}
+
+div.individual-filter button.delete-filter-button {
+    border-radius: 50%;
+    padding: 10px;
+    border: none;
+    background-color: var(--border-color);
+    transition: transform 200ms;
+}
+
+div.individual-filter button.delete-filter-button:hover {
+    transform: scale(1.5);
+    cursor: pointer;
+}
+
+div.temp-filter-options-wrapper {
+    font-family: 'Heebo', sans-serif;
+    position: absolute;
+    z-index: 3;
+    top: 300px;
+}
+
+div.temp-filter-options-wrapper ul.filter-options {
+    list-style-type: none;
+    background-color: #7938b6;
+    color: var(--color5);
+    text-align: center;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 1.3rem;
+}
+
+ul.filter-options li {
+    padding: 10px;
+    width: 300px;
+}
+
+ul.filter-options li:hover {
+    background-color: #b769ff;
+}
+
+ul.filter-options li:hover {
+    cursor: pointer;
+    color: var(--color5);
+}
+
+div[data-filter="first-selection"],
+div[data-filter="second-selection"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #7938b6;
+    padding: 10px;
+    margin: 3px;
+}
+
+div[data-filter="first-selection"],
+div[data-filter="second-selection"] {
+    width: 250px;
+}
+
+div[data-filter="first-selection"]:hover,
+div[data-filter="second-selection"]:hover {
+    background-color: #7938b6;
+    color: var(--color5);
+}

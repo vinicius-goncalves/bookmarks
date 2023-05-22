@@ -1,5 +1,6 @@
 import { MainContentDBManager, FavoritesDBManager } from './db-manager.js'
 import { createIconElement } from '../utils/functions.js'
+import { updateFavoritesLength } from '../dashboard/sections/favorites.js'
 
 export { loadStoredItemsIntoDOM, renderStoredElement }
 
@@ -26,22 +27,28 @@ const toolsHandle = {
         
         element.addEventListener('click', async () => {
 
-            const { isFavorite } = await FavoritesDBManager.get(id)
+            try {
+                const { isFavorite } = await FavoritesDBManager.get(id)
             
-            if(isFavorite) {
-                await FavoritesDBManager.remove(id)
-                updateDOMIcon(id, 'favorite', 'favorite_border')
-                return
+                if(isFavorite) {
+                    await FavoritesDBManager.remove(id)
+                    updateDOMIcon(id, 'favorite', 'favorite_border')
+                    return
+                }
+    
+                const { added } = await FavoritesDBManager.put(id)
+                
+                if(!added) {
+                    console.log(`An error has occurred when tried to add "${id}" to favorites.`)
+                    return
+                }
+    
+                updateDOMIcon(id, 'favorite', 'favorite')
+            } catch (err) {
+                console.error(err)
+            } finally {
+                updateFavoritesLength()      
             }
-
-            const { added } = await FavoritesDBManager.put(id)
-            
-            if(!added) {
-                console.log(`An error has occurred when tried to add "${id}" to favorites.`)
-                return
-            }
-
-            updateDOMIcon(id, 'favorite', 'favorite')
         })
     },
     
