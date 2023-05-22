@@ -24,35 +24,9 @@ div.filter-options-wrapper {
 }
 
 /*
-* Float icons for advanced filter
+* [Filter manager] Float icons
 */
-div.filter-float-icons {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-div.filter-float-icons button {
-    border-radius: 50%;
-    background-color: #7938b6;
-    border: none;
-    padding: 15px;
-    cursor: pointer;
-    transition: transform 200ms;
-    color: #FFFFFF;
-    margin: 10px;
-}
-
-div.filter-float-icons button:hover {
-    transform: scale(1.5)
-}
-
-div.filter-float-icons .icon {
-    font-size: 2rem;
-}
+div.filter-float-icons button:nth-child(odd) { bottom: 10%; }
 
 div.filter-options-content {
     width: 80vw;
@@ -101,7 +75,7 @@ button.add-filter {
 
 button.add-filter .material-icons-outlined {
     margin: 0 10px;
-    background-color: #7938b6;
+    background-color: var(--color0);
     border-radius: 50%;
     padding: 5px;
 }
@@ -145,7 +119,7 @@ div.temp-filter-options-wrapper {
 
 div.temp-filter-options-wrapper ul.filter-options {
     list-style-type: none;
-    background-color: #7938b6;
+    background-color: var(--color0);
     color: var(--color5);
     text-align: center;
     border-radius: 10px;
@@ -172,7 +146,7 @@ div[data-filter="second-selection"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #7938b6;
+    border: 1px solid var(--color0);
     padding: 10px;
     margin: 3px;
 }
@@ -184,6 +158,6 @@ div[data-filter="second-selection"] {
 
 div[data-filter="first-selection"]:hover,
 div[data-filter="second-selection"]:hover {
-    background-color: #7938b6;
+    background-color: var(--color0);
     color: var(--color5);
 }

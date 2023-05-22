@@ -9,12 +9,14 @@
         <meta name="author" content="github@vinicius-goncalves.com">
         <meta name="keywords" content="list, dashboard, insertion, favorites">
         <link rel="stylesheet" href="style/main-style.css" type="text/css">
-        <link rel="stylesheet" href="style/dashboard.css" type="text/css">
+        <link rel="stylesheet alternative" href="style/dashboard.css" type="text/css">
+        <link rel="stylesheet alternative" href="style/templates.css" type="text/css">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
         <style>
 
             body {
                 background-color: #F4F4F4;
+                overflow: hidden;
             }
 
             div.data-manipulation-wrapper {
@@ -254,17 +256,6 @@
                 justify-content: center;
             }
 
-            .filter-content .filter-content-icon {
-                margin: 0 5px;
-                font-size: 2rem;
-                background-color: var(--main-color);
-                padding: 13px;
-                border-radius: 50%;
-                position: absolute;
-                bottom: 5px;
-                right: 5px;
-            }
-
             section div.item-stored {
                 display: flex;
                 justify-content: space-between;
@@ -310,11 +301,11 @@
     <body>
         <div class="filter-options-wrapper" data-close="filter-options-wrapper" style="display: none;">
             <div class="filter-float-icons">
-                <button data-button="add-new-filter">
-                    <span class="material-icons-outlined icon">add</span>
+                <button class="float-button--style" data-button="add-new-filter">
+                    <span class="material-icons-outlined">add</span>
                 </button>
-                <button data-button="search-from-filters">
-                    <span class="material-icons-outlined icon">done</span>
+                <button class="float-button--style" data-button="search-from-filters">
+                    <span class="material-icons-outlined">done</span>
                 </button>
             </div>
             <div class="filter-options-content">
@@ -327,7 +318,7 @@
                 <div class="filters"></div>
             </div>
         </div>
-        <div class="dashboard-wrapper" data-close="dashboard-wrapper">
+        <div class="dashboard-wrapper" data-close="dashboard-wrapper" style="display: none;">
             <div class="back-wrapper" data-close-target="dashboard-wrapper">
                 <span class="material-icons-outlined">arrow_back</span>
                 <span class="back-message">Home</span>
@@ -359,7 +350,11 @@
                     <section data-section="advanced_search" style="display: none;">
                         <div class="filter-wrapper">
                             <div class="filter-content">
-                                <span class="material-icons-outlined filter-content-icon">manage_search</span>
+                                <button class="filter-content-icon float-button--style">
+                                    <span class="material-icons-outlined">
+                                        manage_search
+                                    </span>
+                                </button>
                             </div>
                         </div>
                     </section>
@@ -369,6 +364,9 @@
             </div>
         </div>
 
+        <button class="float-button--style" data-button="open-dashboard" data-target=".dashboard-wrapper">
+            <span class="material-icons-outlined icon">dashboard</span>
+        </button>
         <div class="data-manipulation-wrapper heebo-font--apply">
             <div class="content-manipulation-wrapper">
                 <div class="insert-content">

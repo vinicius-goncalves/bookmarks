@@ -14,19 +14,5 @@
     
     --color4: #0D0D0D;
     --color5: #FDFDFD;
-}
-
-.heebo-font--apply {
-    font-family: 'Heebo', sans-serif;
-    letter-spacing: 1.5px;
-}
-
-.input-text--style {
-    outline: none;
-    border: none;
-    padding: 10px;
-    width: 500px;
-    font-family: inherit;
-    font-size: 1rem;
-    background-color: #F4F3FB;
+    --color0: #730bd4;
 }

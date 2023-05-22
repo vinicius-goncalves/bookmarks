@@ -75,10 +75,28 @@ function loadBtnListeners() {
     })
 }
 
+function handleWithDashboardOpenBtn() {
+    
+    const openDashboardBtn = document.querySelector('[data-button="open-dashboard"]')
+
+    openDashboardBtn.addEventListener('click', () => {
+        
+        const target = openDashboardBtn.getAttribute('data-target')
+        const targetFound = document.querySelector(target)
+
+        if(!targetFound) {
+            return
+        }
+        
+        targetFound.removeAttribute('style')
+    })
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     
     loadBtnListeners()
     loadKeyboardShortcuts()
     keyUpOutlineRemoverListener()
     loadStoredItemsIntoDOM()
+    handleWithDashboardOpenBtn()
 })
