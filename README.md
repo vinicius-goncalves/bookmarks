@@ -7,7 +7,7 @@ Navegue pelos tópicos.
 
  - [O que é?][1]
  - [Instalação][2]
- - [Uso][3]
+ - [Como utilizar][3]
 
 [comment]: <> (Topics)
 
