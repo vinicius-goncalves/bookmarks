@@ -5,8 +5,13 @@ Um gerenciador de tarefas avançado.
 ## 📝 Tópicos:
 Navegue pelos tópicos.
 
- - [O que é?](#o-que-é?)
- - [Instalação](#instalação)
+ - [O que é?][1]
+ - [Instalação][2]
+
+[comment]: <> (Topics)
+
+[1]: <#o-que-é> "O que é"
+[2]: <#instalação> "Instalação"
 
 ---
 
