@@ -1,6 +1,6 @@
 // import { hasElementRendered } from '../../utils/functions.js'
 import { handleWithQueryParams } from '../../database/custom-query.js'
-import { renderStoredElement } from '../../database/dom-manipulation.js'
+// import { renderStoredElement } from '../../dashboard/main.js'
 import { createLoader } from '../../utils/functions.js'
 
 export { loadAdvancedFilterFunctions }
@@ -38,10 +38,10 @@ const activeFilters = Object.create(Object.create(null), {})
 
 let isFirstTime = true
 
-async function handleWithElementRendering(storedItem) {
-    const element = await renderStoredElement(storedItem)
-    advancedSearchSection.appendChild(element)
-}
+// async function handleWithElementRendering(storedItem) {
+//     const element = await renderStoredElement(storedItem)
+//     advancedSearchSection.appendChild(element)
+// }
 
 async function loadItemsFromMainContent(url) {
 
@@ -65,7 +65,7 @@ async function loadItemsFromMainContent(url) {
             })
 
             if(!res) {
-                await handleWithElementRendering(queryRes)
+                // await handleWithElementRendering(queryRes)
             }
         })
         
@@ -73,7 +73,7 @@ async function loadItemsFromMainContent(url) {
         return
     }
     
-    queryResult.forEach(async (queryRes) => await handleWithElementRendering(queryRes))
+    // queryResult.forEach(async (queryRes) => await handleWithElementRendering(queryRes))
     isFirstTime = false
     loader.remove()
 }

@@ -1,5 +1,6 @@
 import { insertNewItem, getItemById, FavoritesDBManager } from './database/db-manager.js'
-import { loadStoredItemsIntoDOM } from './database/dom-manipulation.js'
+import { genericStoredObjectRender, loadStoredElements } from './database/dom-manipulation.js'
+import { createIconElement } from './utils/functions.js'
 
 const btnInsert = document.querySelector('[data-button="insert"]')
 const btnSearch = document.querySelector('[data-button="search"]')
@@ -9,19 +10,20 @@ const inputContentManipulator = document.querySelector('[data-input="content-man
 function keyUpOutlineRemoverListener() {
 
     window.addEventListener('keyup', () => {
-        const elementsWithOutline = document.querySelectorAll('.add-outline')
-        elementsWithOutline.forEach(element => element.classList.remove('add-outline'))
+        const elementsWithOutline = document.querySelectorAll('.active-outline')
+        elementsWithOutline.forEach(element => element.classList.remove('active-outline'))
     })
 }
 
 function applyOutlineOnKeyDown(selector) {
 
     const element = document.querySelector(selector)
+
     if(!element.matches(selector)) {
         return
     }
 
-    element.classList.add('add-outline')
+    element.classList.add('active-outline')
 }
 
 function loadKeyboardShortcuts() {
@@ -97,6 +99,6 @@ window.addEventListener('DOMContentLoaded', () => {
     loadBtnListeners()
     loadKeyboardShortcuts()
     keyUpOutlineRemoverListener()
-    loadStoredItemsIntoDOM()
+    loadStoredElements()
     handleWithDashboardOpenBtn()
 })

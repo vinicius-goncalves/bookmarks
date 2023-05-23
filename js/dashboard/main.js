@@ -1,8 +1,84 @@
 import { loadAdvancedFilterFunctions } from './sections/advanced-filter.js'
 import { loadFavorites } from './sections/favorites.js'
 
+export { toolsHandle, dashboardBulkToolCreator }
+
 const dashboardWrapper = document.querySelector('.dashboard-wrapper')
 const dashboardContent = dashboardWrapper.querySelector('.dashboard-content')
+
+function updateDOMIcon(id, iconToUpdate, newIcon) {
+
+    const dataId = `[data-id="${id}"]`
+    const element = document.querySelector(dataId)
+    
+    if(!element.matches(dataId)) {
+        return
+    }
+
+    const iconIntoElement = element.querySelector(`[data-tool="${iconToUpdate}"]`)
+    iconIntoElement.textContent = newIcon
+}
+
+const toolsHandle = {
+
+    favorite(storedObject, element) {
+
+        const { id } = storedObject
+        
+        element.addEventListener('click', async () => {
+
+            try {
+                const { isFavorite } = await FavoritesDBManager.get(id)
+            
+                if(isFavorite) {
+                    await FavoritesDBManager.remove(id)
+                    updateDOMIcon(id, 'favorite', 'favorite_border')
+                    return
+                }
+    
+                const { added } = await FavoritesDBManager.put(id)
+                
+                if(!added) {
+                    console.log(`An error has occurred when tried to add "${id}" to favorites.`)
+                    return
+                }
+    
+                updateDOMIcon(id, 'favorite', 'favorite')
+            } catch (err) {
+                console.error(err)
+            } finally {
+                updateFavoritesLength()      
+            }
+        })
+    },
+    
+    bookmark(storedObject, element) {},
+    info(storedObject, element) {},
+}
+
+function dashboardBulkToolCreator(storedObject, ...GoogleMaterialIconsName) {
+    
+    const toolsCreated = GoogleMaterialIconsName.map(tool => {
+        
+        const toolName = tool.split('_').at(0)
+
+        const toolCreated = createIconElement(tool, true)
+        toolCreated.classList.add('icon-content-tools')
+        toolCreated.dataset.tool = toolName
+
+        console.log(toolName)
+
+        const [ _, loadListener ] = Object
+            .entries(toolsHandle)
+            .find(([ funcName ]) => funcName == toolName)
+
+        loadListener(storedObject, toolCreated)
+
+        return toolCreated
+    })
+
+    return toolsCreated
+}
 
 function getActiveSection() {
     const currentSection = document.querySelector('[data-section-showing="true"]')

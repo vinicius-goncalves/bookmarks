@@ -9,6 +9,10 @@ function Item(content) {
     this.id = randomUUID()
     this.createdAt = Date.now()
     this.content = content
+    this.icon = {
+        hasIcon: false,
+        iconName: ''
+    }
 }
 
 function FavoriteItem(id, addedAt) {

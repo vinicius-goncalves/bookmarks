@@ -41,11 +41,8 @@ function hasElementRendered(root, node) {
 
     const nodeIterator = document.createNodeIterator(root, NodeFilter.SHOW_ELEMENT, {
         acceptNode: function(nodeToAccept) {
-            if(nodeToAccept.classList.contains('item-stored')) {
-                return NodeFilter.FILTER_ACCEPT
-            } else {
-                return NodeFilter.FILTER_REJECT
-            }
+            const containsClass = nodeToAccept.classList.contains('item-stored')
+            return containsClass ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
         }
     })
 

@@ -12,6 +12,29 @@
         <link rel="stylesheet alternative" href="style/dashboard.css" type="text/css">
         <link rel="stylesheet alternative" href="style/templates.css" type="text/css">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+        <style>
+            .temp-icons-menu {
+                background-color: #F4F4F4;
+                padding: 15px;
+                border-radius: 10px;
+                display: flex;
+                flex-direction: column;
+                box-shadow: #6b707b5b 0px 15px 15px 15px;
+            }
+
+            .temp-icons-menu span {
+                padding: 7px;
+                font-size: 2rem;
+                border-radius: 10px;
+                margin: 4px;
+                justify-content: center;
+            }
+
+            .temp-icons-menu span:hover {
+                background-color: var(--background-color-gray-scheme);
+                cursor: pointer;
+            }
+        </style>
     </head>
     <body>
         <div class="filter-options-wrapper" data-close="filter-options-wrapper" style="display: none;">
@@ -60,6 +83,7 @@
                         <hr>
                     </nav>
                 </header>
+                <!-- <a href="tel:+"></a> -->
                 <section class="sections">
                     <div data-section="advanced_search" style="display: none;">
                         <div class="filter-wrapper">
@@ -77,7 +101,7 @@
                 </section>
             </div>
         </div>
-
+        
         <button class="float-button--style" data-button="open-dashboard" data-target=".dashboard-wrapper">
             <span class="material-icons-outlined icon">dashboard</span>
         </button>
@@ -106,5 +130,6 @@
         <script src="./js/database/indexedDB-utils.js" type="module"></script>
         <script src="./js/database/custom-query.js" type="module"></script>
         <script src="./js/utils/float-menu.js" type="module"></script>
+
     </body>
 </html>
