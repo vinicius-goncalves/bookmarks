@@ -3,7 +3,6 @@ import { FavoritesDBManager, MainContentDBManager } from './db-manager.js'
 
 export { handleWithQueryParams }
 
-
 const arrMethods = {
     push(arr, elements) {
         Array.prototype.push.call(arr, ...elements)
@@ -12,9 +11,8 @@ const arrMethods = {
 
 async function handleWithQueryParams(url) {
     
-    
     if(!(url instanceof URL)) {
-        throw new TypeError()
+        throw new TypeError(`The "url" param must be a URL instance with the URL properties.`)
     }
     
     let globalArr = []

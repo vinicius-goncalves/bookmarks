@@ -94,7 +94,7 @@ const FavoritesDBManager = {
 
             const store = await makeDBFavoritesTransaction()
             const keyRange = IDBKeyRange.only(id)
-    
+
             const request = store.get(keyRange)
     
             const res = (result) => result 

@@ -1,38 +1,34 @@
 import { createLoader, hasElementRendered } from '../../utils/functions.js'
 import { FavoritesDBManager, MainContentDBManager } from '../../database/db-manager.js'
 import { genericStoredObjectRender } from '../../database/dom-manipulation.js'
+import { storedObjectsRenderingHelper } from '../main.js'
 
-export { loadFavorites, updateFavoritesLength }
+export { updateFavoritesLength, loadFavoriteItems }
 
 const favoritesSection = document.querySelector('[data-section="favorites"]')
 const favoriteSectionOption = document.querySelector('[data-section-option="favorites"]')
-
-async function loadFavorites() {
-
-    const loader = createLoader()
-    
-    const { res } = await FavoritesDBManager.getAll()
-    const idsFavorites = res.map(({ id }) => id)
-    
-    const favorites = await MainContentDBManager.bulkSearch(...idsFavorites)
-    
-    favorites.forEach(async (favorite) => {
-
-        const item = await genericStoredObjectRender(favorite)
-        
-        if(hasElementRendered(favoritesSection, item)) {
-            return
-        }
-
-        favoritesSection.appendChild(item)
-    })
-
-    loader.remove()
-}
 
 async function updateFavoritesLength() {
     const favoritesLength = await FavoritesDBManager.length
     favoriteSectionOption.setAttribute('data-favorites-length', favoritesLength)
 }
 
-window.addEventListener('load', () => updateFavoritesLength())
+async function loadFavoriteItems() {
+
+    const storedObjectsRendered = await storedObjectsRenderingHelper.all
+    
+    const filterByObjectKeyCallback = storedObject => storedObject.favoriteElement ? true : false
+    const onlyFavoritesStoredObjects = storedObjectsRendered.filter(filterByObjectKeyCallback)
+
+    
+    const elementsNotAppendedCallback = element => !hasElementRendered(favoritesSection, element)
+    const elementsNotAppended = onlyFavoritesStoredObjects.filter(elementsNotAppendedCallback)
+
+    const fragment = document.createDocumentFragment()
+    elementsNotAppended.forEach(element => fragment.appendChild(element))
+    favoritesSection.appendChild(fragment)
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    updateFavoritesLength()
+})

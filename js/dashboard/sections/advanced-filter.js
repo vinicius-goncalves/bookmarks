@@ -1,13 +1,15 @@
-// import { hasElementRendered } from '../../utils/functions.js'
-import { handleWithQueryParams } from '../../database/custom-query.js'
-// import { renderStoredElement } from '../../dashboard/main.js'
+import { hasElementRendered } from '../../utils/functions.js'
+import { genericStoredObjectRender } from '../../database/dom-manipulation.js'
+import { storedObjectsRenderingHelper } from '../../dashboard/main.js'
 import { createLoader } from '../../utils/functions.js'
+import { FavoritesDBManager, MainContentDBManager } from '../../database/db-manager.js'
 
-export { loadAdvancedFilterFunctions }
+export { loadAdvancedFilterFunctions, loadAllStoredObjects }
+
+const advancedSearchSection = document.querySelector('[data-section="advanced_search"]')
 
 const mainContent = document.querySelector('main.content')
-const childrenFromMainContent = mainContent.children
-const advancedSearchSection = document.querySelector('[data-section="advanced_search"]')
+// const childrenFromMainContent = mainContent.children
 
 const filters = document.querySelector('.filters')
 
@@ -35,48 +37,6 @@ const literalFilterWords = (filterName) => ({
 })[filterName]
 
 const activeFilters = Object.create(Object.create(null), {})
-
-let isFirstTime = true
-
-// async function handleWithElementRendering(storedItem) {
-//     const element = await renderStoredElement(storedItem)
-//     advancedSearchSection.appendChild(element)
-// }
-
-async function loadItemsFromMainContent(url) {
-
-    const loader = createLoader()
-    const queryResult = await handleWithQueryParams(url)
-    const some = (arr, callback) => Array.prototype.some.call(arr, callback)
-
-    if(!isFirstTime) {
-
-        queryResult.forEach(async (queryRes) => {
-
-            const res = some(advancedSearchSection.children, (item) => {
-                if(item.classList.contains('filter-wrapper')) {
-                    return
-                }
-
-                if(item.getAttribute('data-id') == queryRes.id) {
-                    return true
-                }
-                return false
-            })
-
-            if(!res) {
-                // await handleWithElementRendering(queryRes)
-            }
-        })
-        
-        loader.remove()
-        return
-    }
-    
-    // queryResult.forEach(async (queryRes) => await handleWithElementRendering(queryRes))
-    isFirstTime = false
-    loader.remove()
-}
 
 function updateFilterParamsFromObject(activeFiltersObj) {
     
@@ -364,9 +324,21 @@ openFilterContentWrapper.addEventListener('click', () => {
     document.querySelector('.filter-options-wrapper').removeAttribute('style')
 })
 
-function loadAdvancedFilterFunctions() {
-    loadItemsFromMainContent(new URL(window.location.href))
-    updateFilterLengthInformation()
+async function loadAllStoredObjects() {
+    
+    const storedObjectsRendered = await storedObjectsRenderingHelper.all
 
+    const callback = element => !hasElementRendered(advancedSearchSection, element)
+    const elementsNotAppended = storedObjectsRendered.filter(callback)
+    
+    const fragment = document.createDocumentFragment()
+    elementsNotAppended.forEach(element => fragment.appendChild(element))
+    advancedSearchSection.appendChild(fragment)
+}
+
+function loadAdvancedFilterFunctions() {
+    updateFilterLengthInformation()
     updateFilterParamsFromObject(activeFilters)
+    handleWithDashboardElementsRendering(advancedSearchSection)
+    loadAllStoredObjects()
 }

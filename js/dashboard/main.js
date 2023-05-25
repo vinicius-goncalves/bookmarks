@@ -1,7 +1,11 @@
-import { loadAdvancedFilterFunctions } from './sections/advanced-filter.js'
-import { loadFavorites } from './sections/favorites.js'
+import { FavoritesDBManager, MainContentDBManager } from '../database/db-manager.js'
+import { createIconElement } from '../utils/functions.js'
+import { loadAllStoredObjects } from './sections/advanced-filter.js'
+import { loadFavoriteItems, updateFavoritesLength } from './sections/favorites.js'
+import { handleWithQueryParams } from '../database/custom-query.js'
+import { genericStoredObjectRender } from '../database/dom-manipulation.js'
 
-export { toolsHandle, dashboardBulkToolCreator }
+export { storedObjectsRenderingHelper }
 
 const dashboardWrapper = document.querySelector('.dashboard-wrapper')
 const dashboardContent = dashboardWrapper.querySelector('.dashboard-content')
@@ -17,6 +21,50 @@ function updateDOMIcon(id, iconToUpdate, newIcon) {
 
     const iconIntoElement = element.querySelector(`[data-tool="${iconToUpdate}"]`)
     iconIntoElement.textContent = newIcon
+}
+
+async function handleWithDashboardStoredObjectsRendering() {
+
+    const urlQuery = new URL(window.location.href)
+    const queryResult = await handleWithQueryParams(urlQuery)
+
+    const options = { showTools: true }
+    const renderObjectCallback = (queryStoredItem) => genericStoredObjectRender(queryStoredItem, options)
+
+    const storedObjectsRendered = await Promise.all(queryResult.map(renderObjectCallback))
+
+    const toolsCreationCallback = async ({ element, iconsWrapper }) => {
+
+        const storedObjectID = element.getAttribute('data-id')
+        const storedObjectFromID = await MainContentDBManager.get(storedObjectID)
+        
+        if(!storedObjectFromID) {
+            return
+        }
+
+        const storedFavoriteObjectFromID = await FavoritesDBManager.get(storedObjectID)
+        const { isFavorite } = storedFavoriteObjectFromID
+        
+        const toolsToCreate = [ 
+            isFavorite ? 'favorite' : 'favorite_border',
+            'bookmark_border',
+            'info'
+        ]
+
+        const toolsCreated = dashboardBulkToolCreator(storedObjectFromID, ...toolsToCreate)
+        toolsCreated.forEach(tool => iconsWrapper.appendChild(tool))
+
+        return element
+    }
+
+    const renderedObjects = await Promise.all(storedObjectsRendered.map(toolsCreationCallback))
+    return renderedObjects
+}
+
+const storedObjectsRenderingHelper = {
+    get all() {
+        return handleWithDashboardStoredObjectsRendering()
+    }
 }
 
 const toolsHandle = {
@@ -66,8 +114,6 @@ function dashboardBulkToolCreator(storedObject, ...GoogleMaterialIconsName) {
         toolCreated.classList.add('icon-content-tools')
         toolCreated.dataset.tool = toolName
 
-        console.log(toolName)
-
         const [ _, loadListener ] = Object
             .entries(toolsHandle)
             .find(([ funcName ]) => funcName == toolName)
@@ -80,9 +126,22 @@ function dashboardBulkToolCreator(storedObject, ...GoogleMaterialIconsName) {
     return toolsCreated
 }
 
-function getActiveSection() {
-    const currentSection = document.querySelector('[data-section-showing="true"]')
-    return currentSection
+function loadSectionFeatures(sectionName) {
+    
+    const featuresMap = [
+        [ 'advanced_search', loadAllStoredObjects ],
+        [ 'bookmarks', null ],
+        [ 'favorites', loadFavoriteItems ]
+    ]
+
+    const [ _, functionInvoker ] = featuresMap.find(([ funcName ]) => funcName === sectionName)
+    
+    try {
+        functionInvoker()
+        return { invoked: true }
+    } catch(err) {
+        return { invoked: false, err }
+    }
 }
 
 function hideAllSections() {
@@ -90,25 +149,10 @@ function hideAllSections() {
     allSections.forEach(({ style }) => style.display = 'none')
 }
 
-function loadSectionFeatures(sectionName) {
-    
-    const featuresMap = [
-        [ 'advanced_search', loadAdvancedFilterFunctions ],
-        [ 'bookmarks', null ],
-        [ 'favorites', loadFavorites ]
-    ]
-
-    const [ _, invokeFunction ] = featuresMap.find(([ funcName ]) => funcName === sectionName)
-    
-    try {
-        invokeFunction()
-        return { invoked: true }
-    } catch(err) {
-        return { invoked: false, err }
-    }
+function getActiveSection() {
+    const currentSection = document.querySelector('[data-section-showing="true"]')
+    return currentSection
 }
-
-const getSectionTarget = (sectionTarget) => document.querySelector(`[data-section="${sectionTarget}"]`)
 
 function changeActiveActionTo(newTarget) {
 
@@ -116,23 +160,24 @@ function changeActiveActionTo(newTarget) {
         throw new Error('It was not possible to change the target. Verify if "target" is a valid DOM node.')
     }
 
-    
     const currentSection = document.querySelector('[data-section-showing="true"]')
     currentSection.setAttribute('data-section-showing', false)
     
     newTarget.setAttribute('data-section-showing', true)
-    
+
     const targetResult = { sectionTarget: newTarget.getAttribute('data-section-target') }
     return targetResult
 }
 
-function handleWithSectionTargets(target) {
+const getSectionTarget = (sectionTarget) => document.querySelector(`[data-section="${sectionTarget}"]`)
 
-    if(!target.hasAttribute('data-section-target')) {
+function showSection(targetClicked) {
+
+    if(!targetClicked.hasAttribute('data-section-target')) {
         return
     }
 
-    const { sectionTarget } = changeActiveActionTo(target)
+    const { sectionTarget } = changeActiveActionTo(targetClicked)
     const sectionFound = getSectionTarget(sectionTarget)
     
     if(!sectionFound) {
@@ -152,10 +197,10 @@ allDataClose.forEach(dataClose => {
     })
 })
 
-dashboardContent.addEventListener('click', (({ target }) => {
-    handleWithSectionTargets(target)
+dashboardContent.addEventListener('click', (({ ['target']: targetClicked }) => {
+    showSection(targetClicked)
 }))
 
 window.addEventListener('DOMContentLoaded', () => {
-    handleWithSectionTargets(getActiveSection())
+    showSection(getActiveSection())
 })

@@ -16,8 +16,10 @@ const mainContent = document.querySelector('main.content')
     return abbr
 }
 
-async function genericStoredObjectRender(storedObject, showTools = false) {
-
+async function genericStoredObjectRender(storedObject, objectOptions = { showTools: false }) {
+ 
+    const { showTools } = objectOptions
+    
     const { id, content } = storedObject
 
     const divItemStored = document.createElement('div')
@@ -72,7 +74,7 @@ async function loadStoredElements() {
     const fragment = document.createDocumentFragment()
     const renderStoredObjectsCallback = storedItems.map(item => genericStoredObjectRender(item))
     const genericStoredObjectsRendered = await Promise.all(renderStoredObjectsCallback)
-    
+
     const renderedObjectsModified = genericStoredObjectsRendered.map(({ element, iconsWrapper }) => {
         
         const goToDashboard = createToolFromIconName('north_east', 'Track down this task on dashboard')
@@ -81,11 +83,12 @@ async function loadStoredElements() {
         Array.of(goToDashboard, changeIcon).forEach(tool => iconsWrapper.appendChild(tool))
 
         changeIcon.addEventListener('click', (event) => {
-            console.log(event.pageX, event.pageY)
             loadIconsMenu(event.pageX, event.pageY)
         })
 
-        // changeIcon.click()
+        goToDashboard.addEventListener('click', (event) => {
+
+        })
 
         element.addEventListener('mouseenter', () => iconsWrapper.style.display = 'block')
         element.addEventListener('mouseleave', () => iconsWrapper.style.display = 'none')
