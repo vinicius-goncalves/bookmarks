@@ -1,71 +1,69 @@
 import { FavoritesDBManager, MainContentDBManager } from '../database/db-manager.js'
 import { createIconElement } from '../utils/functions.js'
-import { loadAllStoredObjects } from './sections/advanced-filter.js'
+import { loadAllStoredObjects } from './sections/advanced-search.js'
 import { loadFavoriteItems, updateFavoritesLength } from './sections/favorites.js'
-import { handleWithQueryParams } from '../database/custom-query.js'
+import { createURLFilter, startQuery } from '../database/custom-query.js'
 import { genericStoredObjectRender } from '../database/dom-manipulation.js'
+import { loadAdvancedFilterFunctions } from './sections/advanced-search.js'
 
-export { storedObjectsRenderingHelper }
-
-const dashboardWrapper = document.querySelector('.dashboard-wrapper')
-const dashboardContent = dashboardWrapper.querySelector('.dashboard-content')
-
-function updateDOMIcon(id, iconToUpdate, newIcon) {
-
-    const dataId = `[data-id="${id}"]`
-    const element = document.querySelector(dataId)
-    
-    if(!element.matches(dataId)) {
-        return
-    }
-
-    const iconIntoElement = element.querySelector(`[data-tool="${iconToUpdate}"]`)
-    iconIntoElement.textContent = newIcon
+export {
+    getDashboardElements,
+    loadAdvancedFilterFunctions,
+    handleWithDashboardStoredObjectsRendering
 }
 
-async function handleWithDashboardStoredObjectsRendering() {
+const getDashboardElements = async () => {
 
-    const urlQuery = new URL(window.location.href)
-    const queryResult = await handleWithQueryParams(urlQuery)
-
-    const options = { showTools: true }
-    const renderObjectCallback = (queryStoredItem) => genericStoredObjectRender(queryStoredItem, options)
-
-    const storedObjectsRendered = await Promise.all(queryResult.map(renderObjectCallback))
-
-    const toolsCreationCallback = async ({ element, iconsWrapper }) => {
-
-        const storedObjectID = element.getAttribute('data-id')
-        const storedObjectFromID = await MainContentDBManager.get(storedObjectID)
-        
-        if(!storedObjectFromID) {
-            return
+    const o = {
+        wrappers: {
+            dashboardWrapper: document.querySelector('.dashboard-wrapper')
+        },
+        contents: {
+            dashboardContent: document.querySelector('.dashboard-content')
+        },
+        sections: {
+            advancedSearch: document.querySelector('[data-section="advanced_search"]')
+        },
+        targets: {
+            advancedSearch: document.querySelector('[data-section-target="advanced_search"]') 
+        },
+        sectionOption: {
+            advancedSearch: document.querySelector('[data-section-option="advanced_search"]') 
         }
-
-        const storedFavoriteObjectFromID = await FavoritesDBManager.get(storedObjectID)
-        const { isFavorite } = storedFavoriteObjectFromID
-        
-        const toolsToCreate = [ 
-            isFavorite ? 'favorite' : 'favorite_border',
-            'bookmark_border',
-            'info'
-        ]
-
-        const toolsCreated = dashboardBulkToolCreator(storedObjectFromID, ...toolsToCreate)
-        toolsCreated.forEach(tool => iconsWrapper.appendChild(tool))
-
-        return element
     }
 
-    const renderedObjects = await Promise.all(storedObjectsRendered.map(toolsCreationCallback))
-    return renderedObjects
+    return o
 }
 
-const storedObjectsRenderingHelper = {
-    get all() {
-        return handleWithDashboardStoredObjectsRendering()
-    }
-}
+// async function filterElementsFromQuery(filterObj) {
+    
+    // const dashboardElements = (await getDashboardElements())
+
+//     const { ['advancedSearch']: advancedSearchSection } = dashboardElements.sections
+//     const { dashboardWrapper } = dashboardElements.wrappers
+    
+//     const allRenderedElements = advancedSearchSection.children
+//     const elementsChildrenCopy = [...allRenderedElements]
+    
+//     const queryResult = await startQuery(createURLFilter(filterObj))
+
+//     const elementsToShow = elementsChildrenCopy.map(element => {
+
+//         const verifyIfElementExistsCallback = queryItem => queryItem.id == element.getAttribute('data-id')
+//         const someMatchWithQueryItem = queryResult.some(verifyIfElementExistsCallback)
+
+//         return (someMatchWithQueryItem ? { element, mustBeVisible: true } : { element, mustBeVisible: false })
+//     })
+
+//     const handleWithElsVisibleCallback = ({ element, mustBeVisible }) => mustBeVisible 
+//         ? element.style.display = 'flex' 
+//         : element.style.display = 'none'
+
+//     elementsToShow.forEach(handleWithElsVisibleCallback)
+
+//     dashboardWrapper.removeAttribute('style')
+//     return elementsToShow
+// }
 
 const toolsHandle = {
 
@@ -104,6 +102,7 @@ const toolsHandle = {
     info(storedObject, element) {},
 }
 
+
 function dashboardBulkToolCreator(storedObject, ...GoogleMaterialIconsName) {
     
     const toolsCreated = GoogleMaterialIconsName.map(tool => {
@@ -124,6 +123,40 @@ function dashboardBulkToolCreator(storedObject, ...GoogleMaterialIconsName) {
     })
 
     return toolsCreated
+}
+
+async function handleWithDashboardStoredObjectsRendering(elements) {
+
+    const toolsCreationCallback = async ({ element, iconsWrapper }) => {
+
+        const storedObjectID = element.getAttribute('data-id')
+        const storedObjectFromID = await MainContentDBManager.get(storedObjectID)
+        
+        if(!storedObjectFromID) {
+            return
+        }
+
+        const storedFavoriteObjectFromID = await FavoritesDBManager.get(storedObjectID)
+        const { isFavorite } = storedFavoriteObjectFromID
+        
+        const toolsToCreate = [ 
+            isFavorite ? 'favorite' : 'favorite_border',
+            'bookmark_border',
+            'info'
+        ]
+
+        const toolsCreated = dashboardBulkToolCreator(storedObjectFromID, ...toolsToCreate)
+        toolsCreated.forEach(tool => iconsWrapper.appendChild(tool))
+
+        return element
+    }
+
+    const options = { showTools: true }
+    const renderObjectCallback = (queryStoredItem) => genericStoredObjectRender(queryStoredItem, options)
+
+    const storedObjectsRendered = await Promise.all(elements.map(renderObjectCallback))
+    const renderedObjects = await Promise.all(storedObjectsRendered.map(toolsCreationCallback))
+    return renderedObjects
 }
 
 function loadSectionFeatures(sectionName) {
@@ -189,18 +222,47 @@ function showSection(targetClicked) {
     loadSectionFeatures(sectionTarget)
 }
 
-const allDataClose = document.querySelectorAll(`[data-close-target]`)
+;(async () => {
 
-allDataClose.forEach(dataClose => {
-    dataClose.addEventListener('click', () => {
-        document.querySelector(`[data-close="${dataClose.getAttribute('data-close-target')}"]`).style.display = 'none'
-    })
-})
+    const { dashboardContent } = (await getDashboardElements()).contents
 
-dashboardContent.addEventListener('click', (({ ['target']: targetClicked }) => {
-    showSection(targetClicked)
-}))
+    const eventsHandler = {
 
-window.addEventListener('DOMContentLoaded', () => {
-    showSection(getActiveSection())
-})
+        handleWithSectionChanges({ ['target']: targetClicked }) {
+            showSection(targetClicked)
+        },
+
+        handleWithClosesButtons(closeButton) {
+            closeButton.addEventListener('click', () => {
+
+                const wrapperToClose = `[data-close="${closeButton.getAttribute('data-close-target')}"]`
+                const wrapperFound = document.querySelector(wrapperToClose)
+
+                if(!wrapperFound) {
+                    return
+                }
+
+                const wrapperStyle = wrapperFound.style
+                wrapperStyle.setProperty('display', 'none')
+            })
+        },
+
+        handleWithFunctionsLoading() {
+            showSection(getActiveSection())
+            loadAdvancedFilterFunctions()
+        }
+    }
+
+    const { 
+        handleWithSectionChanges, 
+        handleWithClosesButtons, 
+        handleWithFunctionsLoading } = eventsHandler
+
+    dashboardContent.addEventListener('click', handleWithSectionChanges)
+    window.addEventListener('DOMContentLoaded', handleWithFunctionsLoading)
+
+    const allDataClose = document.querySelectorAll(`[data-close-target]`)
+    const setListenerForDataCloseCallback = closeButton => handleWithClosesButtons(closeButton)
+    allDataClose.forEach(setListenerForDataCloseCallback)
+
+})()

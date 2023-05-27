@@ -4,6 +4,7 @@ export {
     createLoader,
     clearLoaders,
     hasElementRendered,
+    updateDOMIcon,
     randomUUID
 }
 
@@ -54,6 +55,19 @@ function hasElementRendered(root, node) {
     }
 
     return false
+}
+
+function updateDOMIcon(id, iconToUpdate, newIcon) {
+
+    const dataId = `[data-id="${id}"]`
+    const element = document.querySelector(dataId)
+    
+    if(!element.matches(dataId)) {
+        return
+    }
+
+    const iconIntoElement = element.querySelector(`[data-tool="${iconToUpdate}"]`)
+    iconIntoElement.textContent = newIcon
 }
 
 

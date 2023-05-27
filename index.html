@@ -13,13 +13,16 @@
         <link rel="stylesheet alternative" href="style/templates.css" type="text/css">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
         <style>
+            
             .temp-icons-menu {
                 background-color: #F4F4F4;
                 padding: 15px;
                 border-radius: 10px;
-                display: flex;
-                flex-direction: column;
                 box-shadow: #6b707b5b 0px 15px 15px 15px;
+                display: grid;
+                grid-template-columns: repeat(3, 50px);
+                max-height: 250px;
+                overflow: auto;
             }
 
             .temp-icons-menu span {

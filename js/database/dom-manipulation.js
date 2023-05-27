@@ -1,6 +1,7 @@
-import { MainContentDBManager, FavoritesDBManager } from './db-manager.js'
+import { MainContentDBManager } from './db-manager.js'
 import { createIconElement } from '../utils/functions.js'
-import { updateFavoritesLength } from '../dashboard/sections/favorites.js'
+import { createURLFilter, startQuery } from '../database/custom-query.js'
+import { getDashboardElements } from '../dashboard/main.js'
 
 export { loadStoredElements, genericStoredObjectRender }
 
@@ -9,10 +10,13 @@ const MAX_CONTENT_LENGTH = 1 << 6
 const mainContent = document.querySelector('main.content')
 
  function createToolFromIconName(GoogleMaterialIconsName, toolDescription) {
+
     const toolFromIcon = createIconElement(GoogleMaterialIconsName)
+
     const abbr = document.createElement('abbr')
     abbr.title = toolDescription
     abbr.appendChild(toolFromIcon)
+
     return abbr
 }
 
@@ -48,7 +52,12 @@ async function genericStoredObjectRender(storedObject, objectOptions = { showToo
     }
 }
 
-async function loadIconsMenu(x, y) {
+async function updateStoredObjectIcon(id, newIcon) {
+    console.log(id, newIcon)
+}
+
+async function loadIconsMenu(id, x, y) {
+
     const DEFAULT_LINK = `js/database/available-icons.json`
     const response = await fetch(DEFAULT_LINK)
     const availableIcons = await response.json()
@@ -56,7 +65,15 @@ async function loadIconsMenu(x, y) {
     const tempIconWrapper = document.createElement('div')
     tempIconWrapper.classList.add('temp-icons-menu')
 
-    availableIcons.forEach(item => tempIconWrapper.appendChild(createIconElement(item)))
+    const createTools = (icon) => {
+        
+        const newIcon = createIconElement(icon)
+        newIcon.addEventListener('click', () =>  updateStoredObjectIcon(id, icon))
+
+        tempIconWrapper.appendChild(newIcon)
+    }
+
+    availableIcons.forEach(createTools)
 
     tempIconWrapper.onmouseleave = () => tempIconWrapper.remove()
 
@@ -65,6 +82,34 @@ async function loadIconsMenu(x, y) {
     tempIconWrapper.style.position = 'absolute'
     
     document.body.prepend(tempIconWrapper)
+}
+
+async function openElementOnDashboard(elementID) {
+    
+    const storedObjectFound = await startQuery(createURLFilter({ id: elementID }))
+    
+    if(!storedObjectFound) {
+        return
+    }
+
+    const dashboardElements = (await getDashboardElements())
+
+    const { ['advancedSearch']: advancedSearchSection } = dashboardElements.sections
+    const { dashboardWrapper } = dashboardElements.wrappers
+
+    const allRenderedElements = advancedSearchSection.children
+    const renderedElementsCopy = [...allRenderedElements].slice(1)
+    
+    const [ storedObject ] = storedObjectFound, { ['id']: storedObjectID } = storedObject
+
+    const handleWithElementsVisibleCallback = el => el.getAttribute('data-id') == storedObjectID 
+        ? el.style.display = 'flex'
+        : el.style.display = 'none'
+    renderedElementsCopy.forEach(handleWithElementsVisibleCallback)
+
+    dashboardWrapper.removeAttribute('style')
+
+    return
 }
 
 async function loadStoredElements() {
@@ -77,18 +122,21 @@ async function loadStoredElements() {
 
     const renderedObjectsModified = genericStoredObjectsRendered.map(({ element, iconsWrapper }) => {
         
-        const goToDashboard = createToolFromIconName('north_east', 'Track down this task on dashboard')
+        const expandIcon = createToolFromIconName('expand_more', 'Click to expand the task')
+        const goToDashboardIcon = createToolFromIconName('north_east', 'Track down this task on dashboard')
         const changeIcon = createToolFromIconName('emoji_emotions', 'Change task icon')
 
-        Array.of(goToDashboard, changeIcon).forEach(tool => iconsWrapper.appendChild(tool))
+        const elementID = element.getAttribute('data-id')
 
-        changeIcon.addEventListener('click', (event) => {
-            loadIconsMenu(event.pageX, event.pageY)
+        const toolsToAppend = [expandIcon, goToDashboardIcon, changeIcon]
+        toolsToAppend.forEach(tool => iconsWrapper.appendChild(tool))
+
+        goToDashboardIcon.addEventListener('click', async () => {
+            await openElementOnDashboard(elementID)
+            
         })
 
-        goToDashboard.addEventListener('click', (event) => {
-
-        })
+        changeIcon.addEventListener('click', (event) => loadIconsMenu(elementID, event.pageX, event.pageY))
 
         element.addEventListener('mouseenter', () => iconsWrapper.style.display = 'block')
         element.addEventListener('mouseleave', () => iconsWrapper.style.display = 'none')

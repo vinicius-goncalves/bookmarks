@@ -1,7 +1,6 @@
 import { createLoader, hasElementRendered } from '../../utils/functions.js'
 import { FavoritesDBManager, MainContentDBManager } from '../../database/db-manager.js'
 import { genericStoredObjectRender } from '../../database/dom-manipulation.js'
-import { storedObjectsRenderingHelper } from '../main.js'
 
 export { updateFavoritesLength, loadFavoriteItems }
 

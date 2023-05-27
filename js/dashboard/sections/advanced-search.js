@@ -1,19 +1,12 @@
 import { hasElementRendered } from '../../utils/functions.js'
-import { genericStoredObjectRender } from '../../database/dom-manipulation.js'
-import { storedObjectsRenderingHelper } from '../../dashboard/main.js'
-import { createLoader } from '../../utils/functions.js'
-import { FavoritesDBManager, MainContentDBManager } from '../../database/db-manager.js'
-
+import { getDashboardElements, handleWithDashboardStoredObjectsRendering } from '../main.js'
+import { createURLFilter, updateCurrentActiveFiltersLength } from '../../database/custom-query.js'
+import { MainContentDBManager } from '../../database/db-manager.js'
 export { loadAdvancedFilterFunctions, loadAllStoredObjects }
 
-const advancedSearchSection = document.querySelector('[data-section="advanced_search"]')
-
-const mainContent = document.querySelector('main.content')
-// const childrenFromMainContent = mainContent.children
-
-const filters = document.querySelector('.filters')
-
 const addNewFilterBtn = document.querySelector('button[data-button="add-new-filter"]')
+const searchFromFilters = document.querySelector('button[data-button="search-from-filters"]')
+
 const openFilterContentWrapper = document.querySelector('.filter-content-icon')
 
 const filtersMap = new Map([
@@ -32,31 +25,10 @@ const literalFilterWords = (filterName) => ({
     'isFavorite': 'Favorite',
     'newest': 'Newest',
     'oldest': 'Oldest',
-    'true': 'True',
     'false': 'False'
 })[filterName]
 
-const activeFilters = Object.create(Object.create(null), {})
-
-function updateFilterParamsFromObject(activeFiltersObj) {
-    
-    const currURL = new URL(window.location.href)
-
-    const keysToClear = ['pathname', 'search']
-    keysToClear.forEach(key => (currURL[key] = ''))
-
-    const searchParams = currURL.searchParams
-
-    Object.entries(activeFiltersObj).forEach(([ filterName, filterValue ]) => {
-        searchParams.set(filterName, filterValue)
-    })
-
-    window.history.replaceState(null, '', currURL)
-
-    return currURL
-}
-
-const proxyActiveFilters = new Proxy(activeFilters, {
+const proxyFiltersObj = new Proxy(Object.create(Object.create(null), {}), {
 
     set(target, prop, newValue) {
         
@@ -66,7 +38,7 @@ const proxyActiveFilters = new Proxy(activeFilters, {
             return false
         }
 
-        updateFilterParamsFromObject(target)
+        createURLFilter(target)
         return true
     },
     
@@ -79,7 +51,7 @@ const proxyActiveFilters = new Proxy(activeFilters, {
         delete target[prop]
 
         if(!(prop in target)) {
-            updateFilterParamsFromObject(target)
+            createURLFilter(target)
             return true
         }
     },
@@ -158,7 +130,7 @@ const filterTools = {
                     const filterName = individualFilter.getAttribute('data-filter-name')
                     const filterValue = individualFilter.getAttribute('data-filter-value')
 
-                    proxyActiveFilters[filterName] = filterValue
+                    proxyFiltersObj[filterName] = filterValue
 
                 })
             })
@@ -181,7 +153,7 @@ const filterTools = {
             updateFilterLengthInformation()
 
             const filterName = individualFilter.getAttribute('data-filter-name')
-            delete proxyActiveFilters[filterName]
+            delete proxyFiltersObj[filterName]
         })
 
         individualFilter.appendChild(secondSelection_div)
@@ -200,7 +172,7 @@ const filterTools = {
 
         filterOptions.forEach(option => {
 
-            if(activeFilters[option]) {
+            if(proxyFiltersObj[option]) {
                 return 
             }
 
@@ -221,7 +193,7 @@ const filterTools = {
                 individualFilter.setAttribute('data-filter-name', option)
 
                 const filterName = individualFilter.getAttribute('data-filter-name')
-                proxyActiveFilters[filterName]
+                proxyFiltersObj[filterName]
 
                 this.handleSecondFilterSelection(option, individualFilter)
                 
@@ -273,6 +245,8 @@ async function createIndividualFilter() {
     return individualFilter_div
 }
 
+const filters = document.querySelector('.filters')
+
 function updateFilterLengthInformation() {
 
     const filtersChildren = filters.children
@@ -316,29 +290,41 @@ addNewFilterBtn.addEventListener('click', async () => {
     updateFilterLengthInformation()
 })
 
-window.addEventListener('click', () => {
-    filterTools.removeAllActiveOptions()
-})
+
+searchFromFilters.addEventListener('click', async () => 
+    showElementsFromQuery(createURLFilter(proxyFiltersObj)))
+    
+window.addEventListener('click', () => filterTools.removeAllActiveOptions())
 
 openFilterContentWrapper.addEventListener('click', () => {
     document.querySelector('.filter-options-wrapper').removeAttribute('style')
 })
 
+
 async function loadAllStoredObjects() {
     
-    const storedObjectsRendered = await storedObjectsRenderingHelper.all
-
+    const storedObjectsRendered = await MainContentDBManager.getAll()
+    
+    if(!storedObjectsRendered) {
+        return
+    }
+    
+    const { ['advancedSearch']: advancedSearchSection } = (await getDashboardElements()).sections
+    const dashboardElements = await handleWithDashboardStoredObjectsRendering(storedObjectsRendered)
+    
     const callback = element => !hasElementRendered(advancedSearchSection, element)
-    const elementsNotAppended = storedObjectsRendered.filter(callback)
+    const elementsNotAppended = dashboardElements.filter(callback)
     
     const fragment = document.createDocumentFragment()
     elementsNotAppended.forEach(element => fragment.appendChild(element))
     advancedSearchSection.appendChild(fragment)
 }
 
-function loadAdvancedFilterFunctions() {
+async function loadAdvancedFilterFunctions() {
+
+    const { ['advancedSearch']: advancedSearchSection } = (await getDashboardElements()).sections
+
     updateFilterLengthInformation()
-    updateFilterParamsFromObject(activeFilters)
-    handleWithDashboardElementsRendering(advancedSearchSection)
     loadAllStoredObjects()
+    updateCurrentActiveFiltersLength(0)
 }

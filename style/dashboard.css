@@ -7,6 +7,15 @@
     padding: 0 10px;
 }
 
+[data-section-option="advanced_search"]::after {
+    content: attr(data-filters-active-length) ' FILTER';
+    font-weight: bold;
+    background-color: #E8E9EA;
+    color: #6B707B;
+    margin: 5px;
+    padding: 0 10px;
+}
+
 div.filter-options-wrapper {
     font-family: 'Heebo', sans-serif;
 }

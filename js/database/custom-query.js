@@ -1,7 +1,9 @@
 
+import { getDashboardElements } from '../dashboard/main.js'
 import { FavoritesDBManager, MainContentDBManager } from './db-manager.js'
 
-export { handleWithQueryParams }
+export { startQuery, createURLFilter, updateCurrentActiveFiltersLength }
+
 
 const arrMethods = {
     push(arr, elements) {
@@ -9,7 +11,31 @@ const arrMethods = {
     }
 }
 
-async function handleWithQueryParams(url) {
+async function updateCurrentActiveFiltersLength(currentLength) {
+    const { ['advancedSearch']: advancedSearchSectionOption } = (await getDashboardElements()).sectionOption
+    advancedSearchSectionOption.setAttribute('data-filters-active-length', currentLength)
+}
+
+function createURLFilter(filtersObj) {
+    
+    const currURL = new URL(window.location.href)
+
+    const keysToClear = ['pathname', 'search']
+    keysToClear.forEach(key => (currURL[key] = ''))
+
+    const searchParams = currURL.searchParams
+
+    Object.entries(filtersObj).forEach(([ filterName, filterValue ]) => {
+        searchParams.set(filterName, filterValue)
+    })
+
+    window.history.replaceState(null, '', currURL)
+    updateCurrentActiveFiltersLength(searchParams.size)
+
+    return currURL
+}
+
+async function startQuery(url) {
     
     if(!(url instanceof URL)) {
         throw new TypeError(`The "url" param must be a URL instance with the URL properties.`)
@@ -20,10 +46,15 @@ async function handleWithQueryParams(url) {
     const query = url.searchParams
     const favoriteItems = await FavoritesDBManager.getAll()
     const allItems = await MainContentDBManager.getAll()
-    // const hasSomeTimeFilter = ['orderBy'].some(timeFilter => query.has(timeFilter))
 
     if(query.size === 0) {
         return Object(allItems)
+    }
+
+    if(query.has('id')) {
+        const idValue = query.get('id')
+        const itemFound = await MainContentDBManager.get(idValue)
+        return [ itemFound ]
     }
 
     if(query.has('orderBy')) {
@@ -62,6 +93,8 @@ async function handleWithQueryParams(url) {
 
     if(query.has('isFavorite')) {
 
+        globalArr = query.has('orderBy') || query.has('maxTime') ? globalArr : allItems
+
         const isFavoriteValue = Boolean(query.get('isFavorite') === 'false' ? 0 : 1)
 
         function getFavoritesThroughBoolean(shouldBeTrue = true) {
@@ -69,7 +102,9 @@ async function handleWithQueryParams(url) {
             const { res } = favoriteItems
 
             globalArr = globalArr.filter(({ ['id']: storedItemId }) => {
+                
                 const indexFound = res.findIndex(({ ['id']: storedFavId }) => storedFavId == storedItemId)
+                
                 if(shouldBeTrue) {
                     return indexFound > -1 ? true : false
                 } else {
@@ -95,18 +130,4 @@ async function handleWithQueryParams(url) {
     }
     
     return globalArr
-}
-
-window.onload = () => {
-
-    const locationManager = new URL(window.location.href)
-    // locationManager.pathname = 'query'
-
-    const query = locationManager.searchParams
-    // query.set('fromTime', '1683832790601')
-    // query.set('isFavorite', 'true')
-
-    // window.history.replaceState(null, '', locationManager)
-
-    // handleWithQueryParams(locationManager)
 }
