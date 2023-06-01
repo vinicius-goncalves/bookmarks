@@ -1,6 +1,5 @@
-import { insertNewItem, getItemById, FavoritesDBManager } from './database/db-manager.js'
-import { genericStoredObjectRender, loadStoredElements } from './database/dom-manipulation.js'
-import { createIconElement } from './utils/functions.js'
+import { loadStoredElements } from './elements-rendering.js'
+import { insertNewItem, getItemById, FavoritesDBManager } from '../database/db-manager.js'
 
 const btnInsert = document.querySelector('[data-button="insert"]')
 const btnSearch = document.querySelector('[data-button="search"]')

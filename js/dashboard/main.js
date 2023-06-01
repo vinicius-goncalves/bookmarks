@@ -3,23 +3,25 @@ import { createIconElement } from '../utils/functions.js'
 import { loadAllStoredObjects } from './sections/advanced-search.js'
 import { loadFavoriteItems, updateFavoritesLength } from './sections/favorites.js'
 import { createURLFilter, startQuery } from '../database/custom-query.js'
-import { genericStoredObjectRender } from '../database/dom-manipulation.js'
+import { genericStoredObjectRender } from '../utils/renders.js'
 import { loadAdvancedFilterFunctions } from './sections/advanced-search.js'
 
 export {
     getDashboardElements,
     loadAdvancedFilterFunctions,
-    handleWithDashboardStoredObjectsRendering
+    handleWithDashboardStoredObjectsRendering,
+    showElementsMatchedOnQuery
 }
 
 const getDashboardElements = async () => {
 
     const o = {
         wrappers: {
-            dashboardWrapper: document.querySelector('.dashboard-wrapper')
+            dashboardWrapper: document.querySelector('.dashboard-wrapper'),
+            filterOptions: document.querySelector('.filter-options-wrapper')
         },
         contents: {
-            dashboardContent: document.querySelector('.dashboard-content')
+            dashboardContent: document.querySelector('.dashboard-content'),
         },
         sections: {
             advancedSearch: document.querySelector('[data-section="advanced_search"]')
@@ -35,35 +37,30 @@ const getDashboardElements = async () => {
     return o
 }
 
-// async function filterElementsFromQuery(filterObj) {
+async function showElementsMatchedOnQuery(filtersObj) {
     
-    // const dashboardElements = (await getDashboardElements())
+    const storedObjectsFound = await startQuery(createURLFilter(filtersObj))
+    const dashboardElements = (await getDashboardElements())
 
-//     const { ['advancedSearch']: advancedSearchSection } = dashboardElements.sections
-//     const { dashboardWrapper } = dashboardElements.wrappers
+    const { ['advancedSearch']: advancedSearchSection } = dashboardElements.sections
+    const { filterOptions } = dashboardElements.wrappers
+
+    const allRenderedElements = advancedSearchSection.children
+    const renderedElementsCopy = [...allRenderedElements].slice(1)
     
-//     const allRenderedElements = advancedSearchSection.children
-//     const elementsChildrenCopy = [...allRenderedElements]
-    
-//     const queryResult = await startQuery(createURLFilter(filterObj))
+    renderedElementsCopy.forEach(element => {
+        const elementID = element.getAttribute('data-id')
+        const existsOnQuery = storedObjectsFound.some(storedObject => storedObject.id === elementID)
+        if(!existsOnQuery) {
+            element.style.display = 'none'
+            return
+        }
+        element.style.display = 'flex'
+    })
 
-//     const elementsToShow = elementsChildrenCopy.map(element => {
-
-//         const verifyIfElementExistsCallback = queryItem => queryItem.id == element.getAttribute('data-id')
-//         const someMatchWithQueryItem = queryResult.some(verifyIfElementExistsCallback)
-
-//         return (someMatchWithQueryItem ? { element, mustBeVisible: true } : { element, mustBeVisible: false })
-//     })
-
-//     const handleWithElsVisibleCallback = ({ element, mustBeVisible }) => mustBeVisible 
-//         ? element.style.display = 'flex' 
-//         : element.style.display = 'none'
-
-//     elementsToShow.forEach(handleWithElsVisibleCallback)
-
-//     dashboardWrapper.removeAttribute('style')
-//     return elementsToShow
-// }
+    filterOptions.style.setProperty('display', 'none')
+    return
+}
 
 const toolsHandle = {
 

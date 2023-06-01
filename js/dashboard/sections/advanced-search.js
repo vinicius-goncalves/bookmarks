@@ -1,5 +1,5 @@
 import { hasElementRendered } from '../../utils/functions.js'
-import { getDashboardElements, handleWithDashboardStoredObjectsRendering } from '../main.js'
+import { getDashboardElements, handleWithDashboardStoredObjectsRendering, showElementsMatchedOnQuery } from '../main.js'
 import { createURLFilter, updateCurrentActiveFiltersLength } from '../../database/custom-query.js'
 import { MainContentDBManager } from '../../database/db-manager.js'
 export { loadAdvancedFilterFunctions, loadAllStoredObjects }
@@ -25,13 +25,14 @@ const literalFilterWords = (filterName) => ({
     'isFavorite': 'Favorite',
     'newest': 'Newest',
     'oldest': 'Oldest',
-    'false': 'False'
+    'false': 'False',
+    'true': 'True'
 })[filterName]
 
 const proxyFiltersObj = new Proxy(Object.create(Object.create(null), {}), {
 
     set(target, prop, newValue) {
-        
+
         target[prop] = newValue
 
         if(!Object.hasOwn(target, prop)) {
@@ -116,6 +117,7 @@ const filterTools = {
             filterOptions_ul.classList.add('filter-options')
 
             optionsToLoad.forEach(option => {
+
 
                 const filterOption_li = document.createElement('li')
                 filterOption_li.textContent = literalFilterWords(option)
@@ -290,10 +292,9 @@ addNewFilterBtn.addEventListener('click', async () => {
     updateFilterLengthInformation()
 })
 
-
 searchFromFilters.addEventListener('click', async () => 
-    showElementsFromQuery(createURLFilter(proxyFiltersObj)))
-    
+    showElementsMatchedOnQuery(proxyFiltersObj))
+
 window.addEventListener('click', () => filterTools.removeAllActiveOptions())
 
 openFilterContentWrapper.addEventListener('click', () => {

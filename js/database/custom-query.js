@@ -16,23 +16,29 @@ async function updateCurrentActiveFiltersLength(currentLength) {
     advancedSearchSectionOption.setAttribute('data-filters-active-length', currentLength)
 }
 
-function createURLFilter(filtersObj) {
-    
+function clearQueryParams() {
+
     const currURL = new URL(window.location.href)
 
     const keysToClear = ['pathname', 'search']
     keysToClear.forEach(key => (currURL[key] = ''))
 
-    const searchParams = currURL.searchParams
+    return currURL
+}
+
+function createURLFilter(filtersObj) {
+    
+    const emptyURL = clearQueryParams()
+    const searchParams = emptyURL.searchParams
 
     Object.entries(filtersObj).forEach(([ filterName, filterValue ]) => {
         searchParams.set(filterName, filterValue)
     })
 
-    window.history.replaceState(null, '', currURL)
+    window.history.replaceState(null, '', emptyURL)
     updateCurrentActiveFiltersLength(searchParams.size)
 
-    return currURL
+    return emptyURL
 }
 
 async function startQuery(url) {

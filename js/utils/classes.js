@@ -2,7 +2,8 @@ import { randomUUID } from './functions.js'
 
 export { 
     Item,
-    FavoriteItem
+    FavoriteItem,
+    InitialPageTools
 }
 
 function Item(content) {
@@ -18,4 +19,10 @@ function Item(content) {
 function FavoriteItem(id, addedAt) {
     this.id = id
     this.addedAt = addedAt
+}
+
+function InitialPageTools(description, iconName, dataTool) {
+    this.description = description
+    this.iconName = iconName
+    this.dataTool = dataTool
 }

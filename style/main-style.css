@@ -21,11 +21,10 @@
 
 body {
     background-color: #F4F4F4;
-    /* overflow: hidden; */
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* justify-content: center; */
+    overflow: hidden;
 }
 
 div.data-manipulation-wrapper {
@@ -49,6 +48,11 @@ div.content-manipulation-wrapper {
 
 div.content-manipulation-wrapper small {
     font-size: 1rem;
+}
+
+div.insert-content div {
+    display: flex;
+    flex-direction: column;
 }
 
 menu.buttons-wrapper {
@@ -108,44 +112,67 @@ span.kbd-wrapper--style {
 main.content {
     display: flex;
     flex-direction: column;
-    min-width: 75vw;
+    width: 80vw;
     align-items: center;
     text-align: center;
     font-family: Arial, sans-serif;
     font-size: 1.5rem;
-    max-height: 65vh;
+    max-height: 63vh;
     overflow: hidden auto;
     border: 1px solid #CCCCCC;
     border-radius: 10px;
     padding: 15px;
+    margin-bottom: 25px;
 }
 
 div.item-stored {
+    min-width: 100%;
     background-color: #FFFFFF;
-    display: flex;
-    min-width: inherit;
-    min-height: 75px;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    margin: 10px;
-    border-radius: 10px;
     box-shadow: 10px 10px 15px #00000015;
-    text-align: left;
-    overflow: hidden;
-}
-
-div.item-stored .icons-wrapper {
+    margin: 15px 0;
+    padding: 15px;
     display: flex;
-    min-height: 100%;
+    justify-content: space-between;
+    align-items: start;
+    flex-direction: column;
+    border-radius: 10px;
+}
+
+div.item-stored .title {
+    min-height: calc(25px + 14px);
+    display: flex;
     align-items: center;
+    justify-content: space-between;
+    min-width: inherit;
+    text-align: left;
 }
 
-.icons-wrapper .material-icons-outlined {
-    padding: 10px;
+div.item-stored .description {
+    font-size: 1rem;
+    text-align: left;
+    height: 0;
+    overflow: hidden;
+    transition: height 200ms;
 }
 
-.icons-wrapper .material-icons-outlined:hover {
+div.item-stored .link {
+    font-weight: bold;
+    text-decoration: none;
+    color: #2079ff;
+}
+
+div.icons-wrapper {
+    display: flex;
+    min-width: fit-content;
+}
+
+div.icons-wrapper .material-icons-outlined {
+    font-size: 1.4rem;
+    margin: 0 5px;
+    padding: 7px;
+}
+
+div.icons-wrapper .material-icons-outlined:hover {
     cursor: pointer;
     background-color: var(--background-color-gray-scheme);
     border-radius: 50%;
