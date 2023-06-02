@@ -1,54 +1,90 @@
+import { createDOMElement } from './functions.js'
+
 export { genericStoredObjectRender }
 
-const MAX_CONTENT_LENGTH = 1 << 5
-
-async function genericStoredObjectRender(storedObject, objectOptions = { showTools: true }) {
- 
-    const { showTools } = objectOptions
+async function genericStoredObjectRender(storedObject, objectOptions = { showTools: false }) {
     
+    const { showTools } = objectOptions
     const { id, content } = storedObject
 
-    const divItemStored = document.createElement('div')
-    divItemStored.classList.add('item-stored')
-    divItemStored.dataset.id = id
-
-    const titleDivItemStored = document.createElement('div')
-    titleDivItemStored.classList.add('title')
-    
-    const pItemStoreName = document.createElement('div')
-    pItemStoreName.classList.add('item-store-name')
-    pItemStoreName.textContent = content.length < MAX_CONTENT_LENGTH 
+    const MAX_CONTENT_LENGTH = 1 << 5
+    const titleItemStoredText = content.length < MAX_CONTENT_LENGTH
         ? content
         : `${content.slice(0, MAX_CONTENT_LENGTH)}...`
 
-    const iconsWrapper = document.createElement('div')
-    iconsWrapper.classList.add('icons-wrapper')
-    iconsWrapper.style.display = showTools ? 'block' : 'none'
+    const itemStoredElement = {
 
-    const descriptionDivItemStored = document.createElement('div')
-    descriptionDivItemStored.classList.add('description')
-    descriptionDivItemStored.dataset.descriptionId = storedObject.id
+        itemStoredWrapper: {
+            div: {
+                classes: { active: true, classesList: [ 'item-stored-wrapper' ] },
+                attributes: { active: true, attributesList: [[ 'data-id', id ]] }
+            }
+        },
 
-    const pDescription = document.createElement('p')
-    pDescription.textContent = 'To see the entire content'
-
-    const aDescription = document.createElement('a')
-    aDescription.href = '#'
-    aDescription.textContent = ' go to dashboard.'
-    aDescription.classList.add('link')
-    pDescription.appendChild(aDescription)
-    aDescription.onclick = ({ currentTarget }) => {
-        console.log(currentTarget.closest('[data-id]').querySelector('[data-tool="go-to-dashboard"]').querySelector('span').click())
+        titleWrapper: {
+            div: {
+                classes: { active: true, classesList: [ 'title' ] },
+            }
+        },
+        titleName: {
+            p: {
+                classes: { active: true, classesList: [ 'item-stored-name' ] },
+                textContent: { active: true, text: titleItemStoredText }
+            }
+        },
+        toolsWrapper: {
+            div: { 
+                classes: { active: true, classesList: [ 'tools-wrapper' ] },
+                inlineStyle: { active: true, inlineStyleList: [[ 'display', showTools ? 'block' : 'none' ]] }
+            }
+        },
+        
+        descriptionWrapper: {
+            div: {
+                classes: { active: true, classesList: [ 'description' ] },
+                attributes: { active: true, attributesList: [[ 'data-description-id', id ]] }
+            }
+        },
+        descriptionContent: {
+            div: {
+                textContent: { active: true, text: 'To see the entire content, ' }
+            }
+        },
+        gotoDashboardAnchor: {
+            a: {
+                attributes: { active: true, attributesList: [ ['href', '#'] ] },
+                classes: { active: true, classesList: [ 'link' ] },
+                textContent: { active: true, text: 'go to dashboard.' },
+                evtListeners: {
+                    active: true,
+                    listenersList: [[ 'click', ({ currentTarget }) => {
+                            const mainWrapper = currentTarget.closest('.item-stored-wrapper')
+                            const goToDashboard = mainWrapper.querySelector('abbr[title*="Track"]')
+                            goToDashboard.click()
+                        }]
+                    ]
+                }
+            }
+        }
     }
 
-    descriptionDivItemStored.append(pDescription)
-    titleDivItemStored.append(pItemStoreName, iconsWrapper)
-    descriptionDivItemStored.appendChild(pDescription)
+    const itemStoredWrapper = await createDOMElement(itemStoredElement.itemStoredWrapper)
+
+    const titleWrapper = await createDOMElement(itemStoredElement.titleWrapper)
+    const titleName = await createDOMElement(itemStoredElement.titleName)
+    const toolsWrapper = await createDOMElement(itemStoredElement.toolsWrapper)
     
-    divItemStored.append(titleDivItemStored, descriptionDivItemStored)
+    const descriptionWrapper = await createDOMElement(itemStoredElement.descriptionWrapper)
+    const descriptionContent = await createDOMElement(itemStoredElement.descriptionContent)
+    const goToDashboardAnchor = await createDOMElement(itemStoredElement.gotoDashboardAnchor)
+    
+    itemStoredWrapper.append(titleWrapper, descriptionWrapper)
+    titleWrapper.append(titleName, toolsWrapper)
+    descriptionWrapper.appendChild(descriptionContent)
+    descriptionContent.appendChild(goToDashboardAnchor)
     
     return { 
-        element: divItemStored,
-        iconsWrapper: iconsWrapper
+        element: itemStoredWrapper,
+        toolsWrapper: toolsWrapper
     }
 }

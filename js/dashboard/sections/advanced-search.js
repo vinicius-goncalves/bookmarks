@@ -2,6 +2,7 @@ import { hasElementRendered } from '../../utils/functions.js'
 import { getDashboardElements, handleWithDashboardStoredObjectsRendering, showElementsMatchedOnQuery } from '../main.js'
 import { createURLFilter, updateCurrentActiveFiltersLength } from '../../database/custom-query.js'
 import { MainContentDBManager } from '../../database/db-manager.js'
+
 export { loadAdvancedFilterFunctions, loadAllStoredObjects }
 
 const addNewFilterBtn = document.querySelector('button[data-button="add-new-filter"]')
@@ -322,10 +323,6 @@ async function loadAllStoredObjects() {
 }
 
 async function loadAdvancedFilterFunctions() {
-
-    const { ['advancedSearch']: advancedSearchSection } = (await getDashboardElements()).sections
-
     updateFilterLengthInformation()
-    loadAllStoredObjects()
     updateCurrentActiveFiltersLength(0)
 }

@@ -125,7 +125,7 @@ main.content {
     margin-bottom: 25px;
 }
 
-div.item-stored {
+div.item-stored-wrapper {
     min-width: 100%;
     background-color: #FFFFFF;
     box-shadow: 10px 10px 15px #00000015;
@@ -138,7 +138,7 @@ div.item-stored {
     border-radius: 10px;
 }
 
-div.item-stored .title {
+div.item-stored-wrapper .title {
     min-height: calc(25px + 14px);
     display: flex;
     align-items: center;
@@ -147,7 +147,7 @@ div.item-stored .title {
     text-align: left;
 }
 
-div.item-stored .description {
+div.item-stored-wrapper .description {
     font-size: 1rem;
     text-align: left;
     height: 0;
@@ -155,24 +155,24 @@ div.item-stored .description {
     transition: height 200ms;
 }
 
-div.item-stored .link {
+div.item-stored-wrapper .link {
     font-weight: bold;
     text-decoration: none;
     color: #2079ff;
 }
 
-div.icons-wrapper {
+div.tools-wrapper {
     display: flex;
     min-width: fit-content;
 }
 
-div.icons-wrapper .material-icons-outlined {
+div.tools-wrapper .material-icons-outlined {
     font-size: 1.4rem;
     margin: 0 5px;
     padding: 7px;
 }
 
-div.icons-wrapper .material-icons-outlined:hover {
+div.tools-wrapper .material-icons-outlined:hover {
     cursor: pointer;
     background-color: var(--background-color-gray-scheme);
     border-radius: 50%;
@@ -325,7 +325,7 @@ section[data-section="advanced_search"] .filter-content {
     justify-content: center;
 }
 
-section div.item-stored {
+section div.item-stored-wrapper {
     display: flex;
     justify-content: space-between;
     width: inherit;

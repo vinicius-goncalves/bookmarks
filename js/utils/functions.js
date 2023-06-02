@@ -112,14 +112,14 @@ async function createDOMElement(objElementSettings) {
         const getAttributeList = (currAttrSettings) => {
             const attributeSettings = Object.keys(currAttrSettings)
             const listType = attributeSettings.find(propName => propName.search(/.*List$/gi) >= 0)
-            return [...currAttrSettings[listType].entries()]
+            return currAttrSettings[listType]
         }
 
         const settersFunctions = {
 
             'classes': (element, currAttrSettings) => {
                 const classesList = getAttributeList(currAttrSettings)
-                const setClasses = ([ _, className ]) => element.classList.add(className)
+                const setClasses = (className) => element.classList.add(className)
                 classesList.forEach(setClasses)
             },
 
@@ -137,6 +137,7 @@ async function createDOMElement(objElementSettings) {
 
             'evtListeners': (element, currAttrSettings) => {
                 const listeners = getAttributeList(currAttrSettings)
+
                 const setListeners = ([ evtName, evtFunc ]) => element.addEventListener(evtName, evtFunc)
                 listeners.forEach(setListeners)
             },
@@ -166,29 +167,6 @@ async function createDOMElement(objElementSettings) {
 
     return promiseCreated
 }
-
-const e = {
-    a: {
-        attributes: {
-            active: true,
-            attributesList: new Map([
-                ['href', '#']
-            ])
-        },
-        classes: {
-            active: true,
-            classesList: new Map([
-                [ 0, 'eae' ]
-            ])
-        },
-        textContent: {
-            active: true,
-            text: 'Hello World'
-        }
-    }
-}
-
-createDOMElement(e).then(elCreated => console.log(elCreated))
 
 function hasElementRendered(root, node) {
 

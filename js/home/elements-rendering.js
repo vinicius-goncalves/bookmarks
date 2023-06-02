@@ -2,6 +2,8 @@ import { createIconElement } from '../utils/functions.js'
 import { InitialPageTools } from '../utils/classes.js'
 import { genericStoredObjectRender } from '../utils/renders.js'
 import { MainContentDBManager } from '../database/db-manager.js'
+import { startQuery, createURLFilter } from '../database/custom-query.js'
+import { getDashboardElements } from '../dashboard/main.js'
 
 export { loadStoredElements }
 
@@ -154,7 +156,7 @@ async function loadStoredElements() {
 
     const renderedObjectsModified = genericStoredObjectsRendered.map(currElement => {
 
-        const { element, iconsWrapper } = currElement
+        const { element, toolsWrapper } = currElement
 
         const createToolsFunc = settings => {
 
@@ -168,14 +170,14 @@ async function loadStoredElements() {
         }
 
         const toolsCreated = toolsSettings.map(createToolsFunc)
-        toolsCreated.forEach(tool => iconsWrapper.appendChild(tool))
+        toolsCreated.forEach(tool => toolsWrapper.appendChild(tool))
 
-        const iconsWrapperEvents = [
-            [ 'mouseenter', () => iconsWrapper.style.display = 'block' ],
-            [ 'mouseleave', () => iconsWrapper.style.display = 'none' ]
+        const toolsWrapperEvents = [
+            [ 'mouseenter', () => toolsWrapper.style.display = 'block' ],
+            [ 'mouseleave', () => toolsWrapper.style.display = 'none' ]
         ]
 
-        iconsWrapperEvents.forEach(([ evtName, evtListener ]) => element.addEventListener(evtName, evtListener))
+        toolsWrapperEvents.forEach(([ evtName, evtListener ]) => element.addEventListener(evtName, evtListener))
 
         return element
     })

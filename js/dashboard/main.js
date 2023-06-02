@@ -5,6 +5,7 @@ import { loadFavoriteItems, updateFavoritesLength } from './sections/favorites.j
 import { createURLFilter, startQuery } from '../database/custom-query.js'
 import { genericStoredObjectRender } from '../utils/renders.js'
 import { loadAdvancedFilterFunctions } from './sections/advanced-search.js'
+import { updateDOMIcon } from '../utils/functions.js'
 
 export {
     getDashboardElements,
@@ -124,7 +125,7 @@ function dashboardBulkToolCreator(storedObject, ...GoogleMaterialIconsName) {
 
 async function handleWithDashboardStoredObjectsRendering(elements) {
 
-    const toolsCreationCallback = async ({ element, iconsWrapper }) => {
+    const toolsCreationCallback = async ({ element, toolsWrapper }) => {
 
         const storedObjectID = element.getAttribute('data-id')
         const storedObjectFromID = await MainContentDBManager.get(storedObjectID)
@@ -143,7 +144,7 @@ async function handleWithDashboardStoredObjectsRendering(elements) {
         ]
 
         const toolsCreated = dashboardBulkToolCreator(storedObjectFromID, ...toolsToCreate)
-        toolsCreated.forEach(tool => iconsWrapper.appendChild(tool))
+        toolsCreated.forEach(tool => toolsWrapper.appendChild(tool))
 
         return element
     }
