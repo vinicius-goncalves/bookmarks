@@ -1,4 +1,4 @@
-import { createIconElement } from '../utils/functions.js'
+import { createDOMElement, createIconElement } from '../utils/functions.js'
 import { InitialPageTools } from '../utils/classes.js'
 import { genericStoredObjectRender } from '../utils/renders.js'
 import { MainContentDBManager } from '../database/db-manager.js'
@@ -9,15 +9,22 @@ export { loadStoredElements }
 
 const mainContent = document.querySelector('main.content')
 
-function createToolFromIconName(GoogleMaterialIconsName, toolDescription, dataTool) {
+async function createToolFromIconName(GoogleMaterialIconsName, toolDescription, dataTool) {
 
     const toolFromIcon = createIconElement(GoogleMaterialIconsName)
 
-    const abbr = document.createElement('abbr')
-    abbr.title = toolDescription
-    abbr.dataTool = dataTool
-    abbr.appendChild(toolFromIcon)
+    const abbrWrapperToolElement = {
+        abbr: {
+            attributes: { 
+                active: true, 
+                attributesList: [ ['title', toolDescription], ['data-tool', dataTool] ] 
+            }
+        }
+    }
 
+    const abbr = await createDOMElement(abbrWrapperToolElement)
+    abbr.appendChild(toolFromIcon)
+    
     return abbr
 }
 
@@ -154,14 +161,14 @@ async function loadStoredElements() {
         }
     ]
 
-    const renderedObjectsModified = genericStoredObjectsRendered.map(currElement => {
+    const renderedObjectsModified = genericStoredObjectsRendered.map(async (currElement) => {
 
         const { element, toolsWrapper } = currElement
 
-        const createToolsFunc = settings => {
+        const createToolsFunc = async (settings) => {
 
             const { dataTool } = settings
-            const toolCreated = createToolFromIconName(...Object.values(settings))
+            const toolCreated = await createToolFromIconName(...Object.values(settings))
 
             const { startListenerTo } = toolsEvents.find(({ toolName }) => toolName == dataTool)
             startListenerTo(toolCreated, element)
@@ -169,8 +176,8 @@ async function loadStoredElements() {
             return toolCreated
         }
 
-        const toolsCreated = toolsSettings.map(createToolsFunc)
-        toolsCreated.forEach(tool => toolsWrapper.appendChild(tool))
+        const toolsCreated = await Promise.all(toolsSettings.map(createToolsFunc))
+        toolsCreated.forEach((tool) => toolsWrapper.appendChild(tool))
 
         const toolsWrapperEvents = [
             [ 'mouseenter', () => toolsWrapper.style.display = 'block' ],
@@ -182,6 +189,7 @@ async function loadStoredElements() {
         return element
     })
 
-    renderedObjectsModified.forEach(item => fragment.appendChild(item))
+    const modifiedElementsResolved = await Promise.all(renderedObjectsModified)
+    modifiedElementsResolved.forEach(item => fragment.appendChild(item))
     mainContent.appendChild(fragment)
 }
