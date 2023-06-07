@@ -216,7 +216,7 @@ function showSection(targetClicked) {
     }
 
     hideAllSections()
-    sectionFound.style.display = 'block'
+    sectionFound.removeAttribute('style')
     loadSectionFeatures(sectionTarget)
 }
 

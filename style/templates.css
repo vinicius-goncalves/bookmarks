@@ -1,3 +1,19 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+.material-icons-outlined { user-select: none; }
+
+:root {
+
+    font-size: 17px;
+
+    --main-color: #FFD600;
+    --border-color: #CCCCCC;
+    --background-color-gray-scheme: #E8E9EA;
+
+    --color4: #0D0D0D;
+    --color5: #FDFDFD;
+    --color0: #730bd4;
+}
+
 .heebo-font--apply {
     font-family: 'Heebo', sans-serif;
     letter-spacing: 1.5px;
@@ -31,3 +47,42 @@
 
 .float-button--style .material-icons-outlined { font-size: 1.7rem; }
 .float-button--style:hover { transform: scale(1.2) }
+
+div.item-stored-wrapper {
+    width: 100%;
+    background-color: #FFFFFF;
+    box-shadow: 10px 10px 15px #00000015;
+    margin: 15px 0;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    border-radius: 10px;
+}
+
+div.item-stored-wrapper .title {
+    min-height: calc(25px + 15px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: inherit;
+    text-align: left;
+}
+
+div.item-stored-wrapper .description {
+    font-size: 1rem;
+    text-align: left;
+    height: 0;
+    overflow: hidden;
+    transition: height 200ms;
+}
+
+div.item-stored-wrapper .link {
+    font-weight: bold;
+    text-decoration: none;
+    color: #2079ff;
+}
+
+hr {
+    border-top: 1px solid #CCCCCC;
+}

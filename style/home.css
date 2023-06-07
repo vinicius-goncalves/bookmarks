@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@100;200;300;400;500;600;700;800;900&family=Oxygen:wght@300;400;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+
+body {
+    background-color: #F4F4F4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+div.data-manipulation-wrapper {
+    display: flex;
+    list-style: none;
+    width: 100%;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px;
+}
+
+div.content-manipulation-wrapper {
+    background-color: var(--main-color);
+    width: fit-content;
+    padding: 35px 20px;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px #00000015;
+    margin: 15px;
+}
+
+div.content-manipulation-wrapper small {
+    font-size: 1rem;
+}
+
+div.insert-content div {
+    display: flex;
+    flex-direction: column;
+}
+
+menu.buttons-wrapper {
+    list-style-type: none;
+    display: flex;
+}           
+
+menu.buttons-wrapper {
+    list-style-type: none;
+    display: flex;
+}
+
+menu.buttons-wrapper li {
+    font-size: 1.1rem;
+    font-family: 'Heebo';
+    letter-spacing: 1.5px;
+    margin: 0 10px;
+    cursor: pointer;
+    background-color: var(--main-color);
+    color: var(--color4);
+    padding: 10px;
+    width: auto;
+    text-align: center;
+    border-radius: 5px;
+    user-select: none;
+}
+
+div.float-menu-wrapper {
+    position: absolute;
+    right: 50px;
+    bottom: 50px;
+    cursor: pointer;
+    transition: transform 200ms;
+}
+
+div.float-menu-wrapper:hover {
+    transform: scale(1.5);
+}
+
+div.float-menu-wrapper span.material-icons-outlined {
+    background-color: var(--main-color);
+    border-radius: 50%;
+    padding: 10px;
+    color: var(--color5);
+    font-size: 2rem;
+}
+
+.active-outline,
+menu li:active {
+    outline: 3px solid #0D0D0D;
+}
+
+span.kbd-wrapper--style {
+    font-size: .9rem;
+}
+
+main.content {
+    display: flex;
+    flex-direction: column;
+    width: 80vw;
+    align-items: center;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 1.5rem;
+    max-height: 63vh;
+    overflow: hidden auto;
+    border: 1px solid #CCCCCC;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 25px;
+}
+
+div.tools-wrapper {
+    display: flex;
+    min-width: fit-content;
+}
+
+div.tools-wrapper .material-icons-outlined {
+    font-size: 1.4rem;
+    margin: 0 5px;
+    padding: 7px;
+}
+
+div.tools-wrapper .material-icons-outlined:hover {
+    cursor: pointer;
+    background-color: var(--background-color-gray-scheme);
+    border-radius: 50%;
+}
+
+span.icon-content-tools {
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+span.icon-content-tools:hover {
+    color: var(--main-color);
+    transition: color 200ms;
+}
+
+button.back-to-initial-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin: 10px;
+    padding: 5px;
+    border: none;
+    background-color: transparent;
+}
