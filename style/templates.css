@@ -86,3 +86,7 @@ div.item-stored-wrapper .link {
 hr {
     border-top: 1px solid #CCCCCC;
 }
+
+/* [data-section-showing="false"] {
+    display: none;
+} */

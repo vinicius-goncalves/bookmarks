@@ -1,4 +1,4 @@
-import { hasElementRendered } from '../../utils/functions.js'
+import { createDOMElement, hasElementRendered } from '../../utils/functions.js'
 import { getDashboardElements, handleWithDashboardStoredObjectsRendering, showElementsMatchedOnQuery } from '../main.js'
 import { createURLFilter, updateCurrentActiveFiltersLength } from '../../database/custom-query.js'
 import { MainContentDBManager } from '../../database/db-manager.js'
@@ -34,9 +34,9 @@ const proxyFiltersObj = new Proxy(Object.create(Object.create(null), {}), {
 
     set(target, prop, newValue) {
 
-        target[prop] = newValue
+        const propDefined = Reflect.set(target, prop, newValue)
 
-        if(!Object.hasOwn(target, prop)) {
+        if(!propDefined) {
             return false
         }
 
@@ -50,11 +50,17 @@ const proxyFiltersObj = new Proxy(Object.create(Object.create(null), {}), {
             return false
         }
         
-        delete target[prop]
+        try {
+            
+            const targetDeleted = Reflect.deleteProperty(target, prop)
 
-        if(!(prop in target)) {
-            createURLFilter(target)
-            return true
+            if(targetDeleted) {
+                createURLFilter(target)
+                return true
+            }
+
+        } catch (err) {
+            console.log(err)
         }
     },
 })
@@ -153,7 +159,7 @@ const filterTools = {
 
         deleteFilter_button.addEventListener('click', () => {
             individualFilter.remove()
-            updateFilterLengthInformation()
+            updateFilterInformation()
 
             const filterName = individualFilter.getAttribute('data-filter-name')
             delete proxyFiltersObj[filterName]
@@ -210,14 +216,27 @@ const filterTools = {
     }
 }
 
+const randomIdentifier = (length = Number.MAX_SAFE_INTEGER) => Math.floor(Math.random() * length).toString(16)
+
 async function createIndividualFilter() {
 
-    const tempFilterID = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(16)
+    const individualFilterTemplate = {
+        wrapper: {
+            div: {
+                classes: { active: true, classesList: ['individual-filter'] },
+                attributes: { active: true, attributesList: [ 
+                        ['data-filter-status', 'empty'], 
+                        [ 'data-filter-id', randomIdentifier() ]] 
+                }
+            }
+        }
+    }
 
+    const individualFilterWrapper = await createDOMElement(individualFilterTemplate.wrapper)
     const individualFilter_div = document.createElement('div')
     individualFilter_div.classList.add('individual-filter')
     individualFilter_div.dataset.filterStatus = 'empty'
-    individualFilter_div.dataset.filterId = tempFilterID
+    individualFilter_div.dataset.filterId = randomIdentifier()
 
     const firstSelection_div = document.createElement('div')
     firstSelection_div.dataset.filter = 'first-selection'
@@ -250,22 +269,25 @@ async function createIndividualFilter() {
 
 const filters = document.querySelector('.filters')
 
-function updateFilterLengthInformation() {
+async function updateFilterInformation() {
 
     const filtersChildren = filters.children
 
     if(filtersChildren.length === 0) {
 
-        const spanMessage = document.createElement('span')
-        spanMessage.textContent = 'There are no applied filters - try an one!'
-        spanMessage.classList.add('no-filter-applied-message')
-        
-        filters.appendChild(spanMessage)
+        const templateSpanMessage = {
+            span: {
+                classes: { active: true, classesList: [ 'no-filter-applied-message' ] },
+                textContent: { active: true, text: 'There are no applied filters - try one!' }
+            }
+        }
 
+        const spanMessage = await createDOMElement(templateSpanMessage)
+        filters.appendChild(spanMessage)
         return
     }
 
-    if(filtersChildren.length === 1 && filtersChildren[0].classList.contains('no-filter-applied-message')) {
+    if(filtersChildren[0].classList.contains('no-filter-applied-message')) {
         return
     }
 
@@ -290,7 +312,7 @@ addNewFilterBtn.addEventListener('click', async () => {
     const individualFilterElement = await createIndividualFilter()
     filters.appendChild(individualFilterElement)
 
-    updateFilterLengthInformation()
+    updateFilterInformation()
 })
 
 searchFromFilters.addEventListener('click', async () => 
@@ -323,6 +345,6 @@ async function loadAllStoredObjects() {
 }
 
 async function loadAdvancedFilterFunctions() {
-    updateFilterLengthInformation()
+    updateFilterInformation()
     updateCurrentActiveFiltersLength(0)
 }

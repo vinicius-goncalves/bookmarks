@@ -9,6 +9,84 @@ export {
     randomUUID
 }
 
+;(() => {
+
+    Window.prototype.createElement = function(HTMLTag) {
+        
+        const newEl = document.createElement(HTMLTag)
+
+        const isNotAnArrayErrorMsg = (paramName) => {
+            throw new TypeError(`The param "${paramName} is not a valid array."`)
+        }
+
+        const protoFuncs = {
+            setAttrs: function(attrsPairsArr) {
+
+                if(!Array.isArray(attrsPairsArr)) {
+                    isNotAnArrayErrorMsg('attrsPairsArr')
+                }
+
+                attrsPairsArr.forEach(([ attrName, attrValue ]) => newEl.setAttribute(attrName, attrValue))
+
+                return newEl
+            },
+            
+            setCls: function(clsNameArr) {
+
+                if(!Array.isArray(clsNameArr)) {
+                    isNotAnArrayErrorMsg('clsNameArr')
+                }
+
+                clsNameArr.forEach(clsName => newEl.classList.add(clsName.trim()))
+                return newEl
+            },
+
+            setText: function(clsNameArr) {
+
+                const newTextNode = document.createTextNode(clsNameArr)
+                newEl.appendChild(newTextNode)
+                
+                return newEl
+            },
+
+            setCSSStyle: function(stylePairsArr) {
+                
+                if(!Array.isArray(stylePairsArr)) {
+                    isNotAnArrayErrorMsg('clsNameArr')
+                }
+
+                stylePairsArr.forEach(([ cssProp, cssValue ]) => {
+                    
+                    const newElStyle = newEl.style
+                    newElStyle.setProperty(cssProp, cssValue)
+                    
+                })
+
+                return newEl
+            },
+
+            addEvtListener: function(evtName, callback, options = {}) {
+                newEl.addEventListener(evtName, callback, options)
+                return newEl
+            }
+        }
+
+        const entriesProtoFuncs = Object.entries(protoFuncs)
+
+        for(const [ funcName, funcCallee ] of entriesProtoFuncs) {
+            Object.defineProperty(newEl, funcName, {
+                value: funcCallee,
+                enumerable: true
+            })
+        }
+
+        if(newEl.nodeType === Node.ELEMENT_NODE) {
+            return newEl
+        }
+    }
+
+})()
+
 const createPromise = (callback) => new Promise(callback)
 
 function createIconElement(GoogleMaterialIconsName, outlined = true) {
@@ -202,7 +280,7 @@ function updateDOMIcon(id, iconToUpdate, newIcon) {
 
 
 function randomUUID() {
-    let dateTime = Date.now()
+    let dateTime = Date.now() 
     const uuid = 'xxxxxxxx-4xxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
         const random = (dateTime + Math.random() * 16) % 16 | 0
         dateTime = dateTime / 16

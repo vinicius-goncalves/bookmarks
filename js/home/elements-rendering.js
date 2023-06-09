@@ -13,16 +13,11 @@ async function createToolFromIconName(GoogleMaterialIconsName, toolDescription, 
 
     const toolFromIcon = createIconElement(GoogleMaterialIconsName)
 
-    const abbrWrapperToolElement = {
-        abbr: {
-            attributes: { 
-                active: true, 
-                attributesList: [ ['title', toolDescription], ['data-tool', dataTool] ] 
-            }
-        }
-    }
+    const abbr = createElement('abbr').setAttrs([
+        ['title', toolDescription ], 
+        ['data-tool', dataTool]
+    ])
 
-    const abbr = await createDOMElement(abbrWrapperToolElement)
     abbr.appendChild(toolFromIcon)
     
     return abbr
