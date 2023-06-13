@@ -1,9 +1,7 @@
 export {
     createPromise,
-    createIconElement,
     createLoader,
     clearLoaders,
-    createDOMElement,
     hasElementRendered,
     updateDOMIcon,
     randomUUID
@@ -19,31 +17,62 @@ export {
             throw new TypeError(`The param "${paramName} is not a valid array."`)
         }
 
-        const protoFuncs = {
-            setAttrs: function(attrsPairsArr) {
+        const getDefiner = (name) => ({
+            attr: function(attrName, attrValue) {
+                newEl.setAttribute(attrName, attrValue)
+            },
+            class: function(className) {
+                newEl.classList.add(className)
+            }
+        })[name]
 
-                if(!Array.isArray(attrsPairsArr)) {
-                    isNotAnArrayErrorMsg('attrsPairsArr')
+        const protoFuncs = {
+
+            setAttrs: function(attrsArr) {
+
+                if(!Array.isArray(attrsArr)) {
+                    isNotAnArrayErrorMsg('attrsArr')
                 }
 
-                attrsPairsArr.forEach(([ attrName, attrValue ]) => newEl.setAttribute(attrName, attrValue))
+                const defineAttr = getDefiner('attr')
+
+                const isAllArray = attrsArr.every(pair => Array.isArray(pair))
+
+                if(isAllArray) {
+                    attrsArr.forEach(([ attrName, attrValue ]) => defineAttr(attrName, attrValue))
+                    return newEl
+                }
+            },
+
+            setAttr: function(attrName, attrValue) {
+                
+                const defineAttr = getDefiner('attr')
+                defineAttr(attrName, attrValue)
 
                 return newEl
             },
             
-            setCls: function(clsNameArr) {
+            setClasses: function(classNameArr) {
 
-                if(!Array.isArray(clsNameArr)) {
-                    isNotAnArrayErrorMsg('clsNameArr')
+                if(!Array.isArray(classNameArr)) {
+                    isNotAnArrayErrorMsg('classNameArr')
                 }
 
-                clsNameArr.forEach(clsName => newEl.classList.add(clsName.trim()))
+                classNameArr.forEach(clsName => newEl.classList.add(clsName.trim()))
                 return newEl
             },
 
-            setText: function(clsNameArr) {
+            setClass: function(className) {
+                
+                const defineClass = getDefiner('class')
+                defineClass(className)
 
-                const newTextNode = document.createTextNode(clsNameArr)
+                return newEl
+            },
+
+            setText: function(classNameArr) {
+
+                const newTextNode = document.createTextNode(classNameArr)
                 newEl.appendChild(newTextNode)
                 
                 return newEl
@@ -52,7 +81,7 @@ export {
             setCSSStyle: function(stylePairsArr) {
                 
                 if(!Array.isArray(stylePairsArr)) {
-                    isNotAnArrayErrorMsg('clsNameArr')
+                    isNotAnArrayErrorMsg('classNameArr')
                 }
 
                 stylePairsArr.forEach(([ cssProp, cssValue ]) => {
@@ -67,6 +96,38 @@ export {
 
             addEvtListener: function(evtName, callback, options = {}) {
                 newEl.addEventListener(evtName, callback, options)
+                return newEl
+            },
+
+            appendOn: function(element, options = undefined) {
+                
+                if(!Node[Symbol.hasInstance](element)) {
+                    return
+                }
+                
+                if(!options) {
+                    element.appendChild(newEl)
+                    return
+                }
+
+                const { position } = options
+                element.insertAdjacentElement(position, newEl)
+
+                return newEl
+            },
+
+            appendElements: function(...elements) {
+
+                const someIsNotNodeInstance = elements.some(element => !Node[Symbol.hasInstance](element))
+
+                if(someIsNotNodeInstance) {
+                    throw new DOMException('Some of the elements passed are not valid DOM references.')
+                }
+
+                const fragment = document.createDocumentFragment()
+                elements.forEach(element => fragment.appendChild(element))
+                newEl.appendChild(fragment)
+
                 return newEl
             }
         }
@@ -85,16 +146,36 @@ export {
         }
     }
 
+    Window.prototype.createIconElement = function(useOutlinedIcons = true) {
+
+        const span = createElement('span')
+            .setClass(useOutlinedIcons ? 'material-icons-outlined' : 'material-icons')
+        
+        const propOptions = {
+            value: function getIcon(name) {
+                span.setText(name)
+                return span
+            },
+            enumerable: true
+        }
+    
+        Object.defineProperty(span, 'getIcon', propOptions)
+
+        return span
+    }
+    
+
+    Node.prototype.getTagName = function() {
+        return this.nodeName.toLowerCase()
+    }
+
+    Window.prototype.getDocumentBody = function() {
+        return this.document.body
+    }
+
 })()
 
 const createPromise = (callback) => new Promise(callback)
-
-function createIconElement(GoogleMaterialIconsName, outlined = true) {
-    const span = document.createElement('span')
-    span.classList.add(outlined ? 'material-icons-outlined' : 'material-icons')
-    span.textContent = GoogleMaterialIconsName
-    return span
-}
 
 function createLoader() {
     

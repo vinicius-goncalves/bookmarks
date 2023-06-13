@@ -1,14 +1,35 @@
-import { createDOMElement, hasElementRendered } from '../../utils/functions.js'
-import { getDashboardElements, handleWithDashboardStoredObjectsRendering, showElementsMatchedOnQuery } from '../main.js'
+import { hasElementRendered } from '../../utils/functions.js'
+import { handleWithDashboardStoredObjectsRendering, showElementsMatchedOnQuery } from '../main.js'
 import { createURLFilter, updateCurrentActiveFiltersLength } from '../../database/custom-query.js'
 import { MainContentDBManager } from '../../database/db-manager.js'
 
 export { loadAdvancedFilterFunctions, loadAllStoredObjects }
 
-const addNewFilterBtn = document.querySelector('button[data-button="add-new-filter"]')
-const searchFromFilters = document.querySelector('button[data-button="search-from-filters"]')
+;(async () => {
 
-const openFilterContentWrapper = document.querySelector('.filter-content-icon')
+    const filterOptionsWrapper = document.querySelector('.filter-options-wrapper')
+    const searchFromFilters = document.querySelector('button[data-button="search-from-filters"]')
+    const openFilterContentWrapper = document.querySelector('.filter-content-icon')
+
+    const listenersToLoad = {
+        clearActiveOptions: () => filterTools.clearActiveOptionsWrapper(),
+        elsMatchedOnQuery: () => void showElementsMatchedOnQuery(proxyFilters),
+        showFilterOptionsWrapper: () => filterOptionsWrapper.removeAttribute('style')
+    }
+
+    const { 
+        clearActiveOptions,
+        elsMatchedOnQuery,
+        showFilterOptionsWrapper
+    } = listenersToLoad
+
+    window.addEventListener('click', clearActiveOptions)
+    searchFromFilters.addEventListener('click', elsMatchedOnQuery)
+    openFilterContentWrapper.addEventListener('click', showFilterOptionsWrapper)
+
+})()
+
+const filters = document.querySelector('.filters')
 
 const filtersMap = new Map([
     ['orderBy', [
@@ -30,10 +51,8 @@ const literalFilterWords = (filterName) => ({
     'true': 'True'
 })[filterName]
 
-const proxyFiltersObj = new Proxy(Object.create(Object.create(null), {}), {
-
+const proxyFilters = new Proxy({}, {
     set(target, prop, newValue) {
-
         const propDefined = Reflect.set(target, prop, newValue)
 
         if(!propDefined) {
@@ -43,22 +62,18 @@ const proxyFiltersObj = new Proxy(Object.create(Object.create(null), {}), {
         createURLFilter(target)
         return true
     },
-    
     deleteProperty(target, prop) {
-
-        if(!(prop in target)) {
+        if(!Reflect.has(target, prop)) {
             return false
         }
         
         try {
-            
             const targetDeleted = Reflect.deleteProperty(target, prop)
 
             if(targetDeleted) {
                 createURLFilter(target)
                 return true
             }
-
         } catch (err) {
             console.log(err)
         }
@@ -67,19 +82,15 @@ const proxyFiltersObj = new Proxy(Object.create(Object.create(null), {}), {
 
 const filterTools = {
 
-    removeAllActiveOptions() {
+    clearActiveOptionsWrapper() {
         const allTempFilterOptionsWrapper = document.querySelectorAll('.temp-filter-options-wrapper')
         allTempFilterOptionsWrapper.forEach(tempFilterWrapper => tempFilterWrapper?.remove())
     },
 
     createMiddleText() {
 
-        const middleText_div = document.createElement('div')
-        middleText_div.classList.add('middle-text')
-        
-        const span = document.createElement('span')
-        span.textContent = 'IS'
-        
+        const middleText_div = createElement('div').setClass('middle-text')
+        const span = createElement('span').setText('IS')
         middleText_div.appendChild(span)
 
         return middleText_div
@@ -87,101 +98,89 @@ const filterTools = {
 
     createTempFilterOptionsWrapper(event) {
 
-        const tempFilterOptionsWrapper_div = document.createElement('div')
+        const filterOptionsWrapperCSSStyle = [ 
+            ['left', `${event.pageX}x`],
+            ['top', `${event.pageY}px`] 
+        ]
 
-        tempFilterOptionsWrapper_div.classList.add('temp-filter-options-wrapper')
-        tempFilterOptionsWrapper_div.style.left = `${event.pageX}px`
-        tempFilterOptionsWrapper_div.style.top = `${event.pageY}px`
+        const tempFilterOptionsWrapper = createElement('div')
+            .setClass('temp-filter-options-wrapper')
+            .setCSSStyle(filterOptionsWrapperCSSStyle)
 
-        return tempFilterOptionsWrapper_div
+        return tempFilterOptionsWrapper
     },
 
     handleSecondFilterSelection(optionName, individualFilter) {
         
         const optionsToLoad = filtersMap.get(optionName)
 
-        const secondSelection_div = document.createElement('div')
-        secondSelection_div.dataset.filter = 'second-selection'
+        const secondSelectionWrapper = createElement('div').setAttr('data-filter', 'second-selection')
+        const selectAOption = createElement('span').setText('Select an option')
+        const expandMoreIcon = createIconElement().getIcon('chevron_right')
+        secondSelectionWrapper.append(selectAOption, expandMoreIcon)
 
-        const selectAOption = document.createElement('span')
-        selectAOption.textContent = 'Select a option'
-
-        const icon = document.createElement('span')
-        icon.classList.add('material-icons-outlined')
-        icon.textContent = 'chevron_right'
-
-        secondSelection_div.append(selectAOption, icon)
-
-        secondSelection_div.addEventListener('click', (event) => {
+        secondSelectionWrapper.addEventListener('click', (event) => {
            
             event.stopPropagation()
-
-            this.removeAllActiveOptions()
+            this.clearActiveOptionsWrapper()
 
             const tempFilterOptionsWrapper_div = this.createTempFilterOptionsWrapper(event)
             
-            const filterOptions_ul = document.createElement('ul')
-            filterOptions_ul.classList.add('filter-options')
+            const filterQueryUL = createElement('ul').setClass('filter-options')
 
             optionsToLoad.forEach(option => {
 
+                const filterOptionLI = createElement('li').setText(literalFilterWords(option))
+                filterQueryUL.appendChild(filterOptionLI)
 
-                const filterOption_li = document.createElement('li')
-                filterOption_li.textContent = literalFilterWords(option)
-                filterOptions_ul.appendChild(filterOption_li)
-                
-                filterOption_li.addEventListener('click', () => {
+                filterOptionLI.addEventListener('click', () => {
+
+                    // const individualFilterHTMLTag = individualFilter.getTagName()
                     
-                    secondSelection_div.textContent = literalFilterWords(option)
                     individualFilter.setAttribute('data-filter-value', option)
                     individualFilter.setAttribute('data-filter-status', 'filled')
 
-                    const filterName = individualFilter.getAttribute('data-filter-name')
+                    const filterName = individualFilter.getAttribute('data-filter-key')
                     const filterValue = individualFilter.getAttribute('data-filter-value')
 
-                    proxyFiltersObj[filterName] = filterValue
+                    proxyFilters[filterName] = filterValue
 
                 })
             })
 
-            tempFilterOptionsWrapper_div.appendChild(filterOptions_ul)
+            tempFilterOptionsWrapper_div.appendChild(filterQueryUL)
             document.body.prepend(tempFilterOptionsWrapper_div)
         })
 
-        const deleteFilter_button = document.createElement('button')
-        deleteFilter_button.classList.add('delete-filter-button')
+        const deleteFilterBUTTON = document.createElement('button')
+        deleteFilterBUTTON.classList.add('delete-filter-button')
 
-        const delete_icon = document.createElement('span')
-        delete_icon.classList.add('material-icons-outlined')
-        delete_icon.textContent = 'delete'
+        const deleteICON = createElement('span')
+        deleteICON.setClass('material-icons-outlined')
+            .setText('delete')
+            .appendOn(deleteFilterBUTTON)
 
-        deleteFilter_button.appendChild(delete_icon)
-
-        deleteFilter_button.addEventListener('click', () => {
+        deleteFilterBUTTON.addEventListener('click', () => {
             individualFilter.remove()
             updateFilterInformation()
 
-            const filterName = individualFilter.getAttribute('data-filter-name')
-            delete proxyFiltersObj[filterName]
+            const filterName = individualFilter.getAttribute('data-filter-key')
+            Reflect.deleteProperty(proxyFilters, filterName)
         })
 
-        individualFilter.appendChild(secondSelection_div)
-        individualFilter.insertAdjacentElement('beforeend', deleteFilter_button)
+        individualFilter.appendChild(secondSelectionWrapper)
+        individualFilter.insertAdjacentElement('beforeend', deleteFilterBUTTON)
     },
 
     handleFirstFilterSelection(eventTarget, tempFilterID) {
         
-        this.removeAllActiveOptions()
+        this.clearActiveOptionsWrapper()
         const filterOptions = [...filtersMap.keys()]
-
         const tempFilterOptionsWrapper_div = this.createTempFilterOptionsWrapper(eventTarget)
+        
+        const cb = option => {
 
-        const filterOptions_ul = document.createElement('ul')
-        filterOptions_ul.classList.add('filter-options')
-
-        filterOptions.forEach(option => {
-
-            if(proxyFiltersObj[option]) {
+            if(Reflect.has(proxyFilters, option)) {
                 return 
             }
 
@@ -190,7 +189,8 @@ const filterTools = {
             optionForFilter_li.textContent = literalFilterWords(option)
             optionForFilter_li.addEventListener('click', () => {
 
-                const individualFilter = document.querySelector(`[data-filter-id="${tempFilterID}"]`)
+                const individualFilter = document.querySelector(`[data-filter-id="${tempFilterID.getAttribute('data-filter-id')}"]`)
+                console.log()
 
                 const lastItemsFromFirstIndex = [...individualFilter.children]
                     .filter((_, index) => index > 0)
@@ -199,131 +199,119 @@ const filterTools = {
                 individualFilter.appendChild(this.createMiddleText())
                 individualFilter.querySelector(`[data-filter="first-selection"]`)
                     .textContent = literalFilterWords(option)
-                individualFilter.setAttribute('data-filter-name', option)
+                individualFilter.setAttribute('data-filter-key', option)
 
-                const filterName = individualFilter.getAttribute('data-filter-name')
-                proxyFiltersObj[filterName]
+                const filterName = individualFilter.getAttribute('data-filter-key')
+                proxyFilters[filterName]
 
                 this.handleSecondFilterSelection(option, individualFilter)
-                
             })
             
-            filterOptions_ul.appendChild(optionForFilter_li)
-        })
+            return optionForFilter_li
+        }
 
-        tempFilterOptionsWrapper_div.appendChild(filterOptions_ul)
+        const lisCreated = filterOptions.map(cb)
+
+        const filterQueryUL = createElement('ul')
+        filterQueryUL
+            .setClass('filter-options')
+            .appendElements(...lisCreated)
+            .appendOn(tempFilterOptionsWrapper_div)
+
         document.body.prepend(tempFilterOptionsWrapper_div)
     }
 }
 
-const randomIdentifier = (length = Number.MAX_SAFE_INTEGER) => Math.floor(Math.random() * length).toString(16)
 
-async function createIndividualFilter() {
+function updateFilterInformation() {
+    
 
-    const individualFilterTemplate = {
-        wrapper: {
-            div: {
-                classes: { active: true, classesList: ['individual-filter'] },
-                attributes: { active: true, attributesList: [ 
-                        ['data-filter-status', 'empty'], 
-                        [ 'data-filter-id', randomIdentifier() ]] 
-                }
-            }
-        }
+    const filtersChildren = filters.children
+    const lengthFiltersChildren = filtersChildren.length
+
+    if(lengthFiltersChildren === 0) {
+
+        const spanMessage = createElement('span')
+        spanMessage
+            .setClass(['no-filter-applied-message'])
+            .setText('There are no applied filters - try one!')
+            .appendOn(filters)
+
+        return
     }
 
-    const individualFilterWrapper = await createDOMElement(individualFilterTemplate.wrapper)
-    const individualFilter_div = document.createElement('div')
-    individualFilter_div.classList.add('individual-filter')
-    individualFilter_div.dataset.filterStatus = 'empty'
-    individualFilter_div.dataset.filterId = randomIdentifier()
+    const elNoFilterAppliedMsg = document.querySelector('span.no-filter-applied-message')
 
-    const firstSelection_div = document.createElement('div')
-    firstSelection_div.dataset.filter = 'first-selection'
-    
-    const selectFilterText_span = document.createElement('span')
-    selectFilterText_span.classList.add('first-selection-span')
-    selectFilterText_span.textContent = 'Select a filter'
+    if(elNoFilterAppliedMsg !== null) {
+        elNoFilterAppliedMsg.remove()
+        return
+    }
+}
 
-    const icon = document.createElement('span')
-    icon.classList.add('material-icons-outlined')
-    icon.textContent = 'chevron_right'
-    
-    firstSelection_div.addEventListener('click', (event) => {
+function createIndividualFilter() {
 
-        const filterStatus = individualFilter_div.getAttribute('data-filter-status')
+    const randomNumber = (length = Number.MAX_SAFE_INTEGER) => Math.floor(Math.random() * length)
 
-        if(filterStatus === 'filled') {
+    const individualFilterWrapper = createElement('div')
+        .setAttrs([ 
+            ['data-filter-status', 'empty'],
+            ['data-filter-id', randomNumber().toString(16)]
+        ])
+        .setClass('individual-filter')
+
+    const firstSelectionWrapper = createElement('div')
+        .setAttr('data-filter', 'first-selection')
+
+    const selectFilterText = createElement('span')
+        .setClass('first-selection-span')
+        .setText('Select a filter')
+
+    const moreContentIcon = createIconElement()
+        .getIcon('chevron_right')
+
+    const createDropdownFilterKey = (event) => {
+
+        const filterStatus = individualFilterWrapper.getAttribute('data-filter-status')
+
+        if(filterStatus !== 'empty') {
             return
         }
 
         event.stopPropagation()
-        filterTools.handleFirstFilterSelection(event, tempFilterID)
+        const currTarget = event.currentTarget
+        const filterID = currTarget.closest('[data-filter-id]')
+
+        filterTools.handleFirstFilterSelection(event, filterID)
+    }
+
+    const elementFunctionsContent = {
+        addEventListener: ['click', createDropdownFilterKey],
+        append: [selectFilterText, moreContentIcon]
+    }
+
+    Object.entries(elementFunctionsContent).forEach(([ funcName, args ]) => {
+        firstSelectionWrapper[funcName](...args)
     })
 
-    firstSelection_div.append(selectFilterText_span, icon)
-    individualFilter_div.appendChild(firstSelection_div)
+    individualFilterWrapper.appendChild(firstSelectionWrapper)
 
-    return individualFilter_div
+    return individualFilterWrapper
 }
 
-const filters = document.querySelector('.filters')
-
-async function updateFilterInformation() {
-
-    const filtersChildren = filters.children
-
-    if(filtersChildren.length === 0) {
-
-        const templateSpanMessage = {
-            span: {
-                classes: { active: true, classesList: [ 'no-filter-applied-message' ] },
-                textContent: { active: true, text: 'There are no applied filters - try one!' }
-            }
-        }
-
-        const spanMessage = await createDOMElement(templateSpanMessage)
-        filters.appendChild(spanMessage)
-        return
-    }
-
-    if(filtersChildren[0].classList.contains('no-filter-applied-message')) {
-        return
-    }
-
-    const noFilterAppliedMessageElement = document.querySelector('span.no-filter-applied-message')
-
-    if(!noFilterAppliedMessageElement) {
-        return
-    }
-
-    noFilterAppliedMessageElement.remove()
-}
+const addNewFilterBtn = document.querySelector('button[data-button="add-new-filter"]')
 
 addNewFilterBtn.addEventListener('click', async () => {
     
     const allFilters = document.querySelectorAll('[data-filter-status]')
     const isSomeEmpty = [...allFilters].some(filter => filter.getAttribute('data-filter-status') === 'empty')
-    
+
     if(isSomeEmpty) {
         return
     }
 
-    const individualFilterElement = await createIndividualFilter()
-    filters.appendChild(individualFilterElement)
-
+    filters.appendChild(createIndividualFilter())
     updateFilterInformation()
 })
-
-searchFromFilters.addEventListener('click', async () => 
-    showElementsMatchedOnQuery(proxyFiltersObj))
-
-window.addEventListener('click', () => filterTools.removeAllActiveOptions())
-
-openFilterContentWrapper.addEventListener('click', () => {
-    document.querySelector('.filter-options-wrapper').removeAttribute('style')
-})
-
 
 async function loadAllStoredObjects() {
     
@@ -333,18 +321,18 @@ async function loadAllStoredObjects() {
         return
     }
     
-    const { ['advancedSearch']: advancedSearchSection } = (await getDashboardElements()).sections
+    const advancedSearchSection = document.querySelector('[data-section="advanced_search"]')
     const dashboardElements = await handleWithDashboardStoredObjectsRendering(storedObjectsRendered)
     
-    const callback = element => !hasElementRendered(advancedSearchSection, element)
-    const elementsNotAppended = dashboardElements.filter(callback)
+    const elsNotRenderedCallback = element => !hasElementRendered(advancedSearchSection, element)
+    const elsNotRendered = dashboardElements.filter(elsNotRenderedCallback)
     
     const fragment = document.createDocumentFragment()
-    elementsNotAppended.forEach(element => fragment.appendChild(element))
+    elsNotRendered.forEach(element => fragment.appendChild(element))
     advancedSearchSection.appendChild(fragment)
 }
 
 async function loadAdvancedFilterFunctions() {
     updateFilterInformation()
-    updateCurrentActiveFiltersLength(0)
+    updateCurrentActiveFiltersLength()
 }

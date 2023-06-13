@@ -1,5 +1,4 @@
 import { FavoritesDBManager, MainContentDBManager } from '../database/db-manager.js'
-import { createIconElement } from '../utils/functions.js'
 import { loadAllStoredObjects } from './sections/advanced-search.js'
 import { loadFavoriteItems, updateFavoritesLength } from './sections/favorites.js'
 import { createURLFilter, startQuery } from '../database/custom-query.js'
@@ -14,7 +13,7 @@ export {
     showElementsMatchedOnQuery
 }
 
-const getDashboardElements = async () => {
+const getDashboardElements = () => {
 
     const o = {
         wrappers: {

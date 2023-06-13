@@ -11,7 +11,7 @@ const arrMethods = {
     }
 }
 
-async function updateCurrentActiveFiltersLength(currentLength) {
+async function updateCurrentActiveFiltersLength(currentLength = 0) {
     const { ['advancedSearch']: advancedSearchSectionOption } = (await getDashboardElements()).sectionOption
     advancedSearchSectionOption.setAttribute('data-filters-active-length', currentLength)
 }

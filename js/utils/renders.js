@@ -1,5 +1,3 @@
-import { createDOMElement } from './functions.js'
-
 export { genericStoredObjectRender }
 
 async function genericStoredObjectRender(storedObject, objectOptions = { showTools: false }) {
@@ -12,72 +10,34 @@ async function genericStoredObjectRender(storedObject, objectOptions = { showToo
         ? content
         : `${content.slice(0, MAX_CONTENT_LENGTH)}...`
 
-    const itemStoredElement = {
+    const itemStoredWrapper = createElement('div')
+        .setAttr('data-id', id)
+        .setClass('item-stored-wrapper')
 
-        itemStoredWrapper: {
-            div: {
-                classes: { active: true, classesList: [ 'item-stored-wrapper' ] },
-                attributes: { active: true, attributesList: [[ 'data-id', id ]] }
-            }
-        },
+    const titleWrapper = createElement('div')
+        .setClass('title')
+    const titleName = createElement('p')
+        .setClass('item-stored-name')
+        .setText(titleItemStoredText)
+    const toolsWrapper = createElement('div')
+        .setClass('tools-wrapper')
+        .setCSSStyle([['display', showTools ? 'block' : 'none']])
 
-        titleWrapper: {
-            div: {
-                classes: { active: true, classesList: [ 'title' ] },
-            }
-        },
-        titleName: {
-            p: {
-                classes: { active: true, classesList: [ 'item-stored-name' ] },
-                textContent: { active: true, text: titleItemStoredText }
-            }
-        },
-        toolsWrapper: {
-            div: { 
-                classes: { active: true, classesList: [ 'tools-wrapper' ] },
-                inlineStyle: { active: true, inlineStyleList: [[ 'display', showTools ? 'block' : 'none' ]] }
-            }
-        },
-        
-        descriptionWrapper: {
-            div: {
-                classes: { active: true, classesList: [ 'description' ] },
-                attributes: { active: true, attributesList: [[ 'data-description-id', id ]] }
-            }
-        },
-        descriptionContent: {
-            div: {
-                textContent: { active: true, text: 'To see the entire content, ' }
-            }
-        },
-        gotoDashboardAnchor: {
-            a: {
-                attributes: { active: true, attributesList: [ ['href', '#'] ] },
-                classes: { active: true, classesList: [ 'link' ] },
-                textContent: { active: true, text: 'go to dashboard.' },
-                evtListeners: {
-                    active: true,
-                    listenersList: [[ 'click', ({ currentTarget }) => {
-                            const mainWrapper = currentTarget.closest('.item-stored-wrapper')
-                            const goToDashboard = mainWrapper.querySelector('abbr[title*="Track"]')
-                            goToDashboard.click()
-                        }]
-                    ]
-                }
-            }
-        }
-    }
+    const descriptionWrapper = createElement('div')
+        .setAttr('data-description-id', id)
+        .setClass('description')
+    const descriptionContent = createElement('div')
+        .setText('To see the entire content, ')
+    const goToDashboardAnchor = createElement('a')
+        .setAttr('href', '#')
+        .setClass(['link'])
+        .setText('go to dashboard.')
+        .addEvtListener('click', ({ currentTarget}) => {
+            const mainWrapper = currentTarget.closest('.item-stored-wrapper')
+            const goToDashboard = mainWrapper.querySelector('abbr[title*="Track"]')
+            goToDashboard.click()
+        })
 
-    const itemStoredWrapper = await createDOMElement(itemStoredElement.itemStoredWrapper)
-
-    const titleWrapper = await createDOMElement(itemStoredElement.titleWrapper)
-    const titleName = await createDOMElement(itemStoredElement.titleName)
-    const toolsWrapper = await createDOMElement(itemStoredElement.toolsWrapper)
-    
-    const descriptionWrapper = await createDOMElement(itemStoredElement.descriptionWrapper)
-    const descriptionContent = await createDOMElement(itemStoredElement.descriptionContent)
-    const goToDashboardAnchor = await createDOMElement(itemStoredElement.gotoDashboardAnchor)
-    
     itemStoredWrapper.append(titleWrapper, descriptionWrapper)
     titleWrapper.append(titleName, toolsWrapper)
     descriptionWrapper.appendChild(descriptionContent)

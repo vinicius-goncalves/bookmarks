@@ -1,4 +1,3 @@
-import { createDOMElement, createIconElement } from '../utils/functions.js'
 import { InitialPageTools } from '../utils/classes.js'
 import { genericStoredObjectRender } from '../utils/renders.js'
 import { MainContentDBManager } from '../database/db-manager.js'
@@ -11,21 +10,20 @@ const mainContent = document.querySelector('main.content')
 
 async function createToolFromIconName(GoogleMaterialIconsName, toolDescription, dataTool) {
 
-    const toolFromIcon = createIconElement(GoogleMaterialIconsName)
-
-    const abbr = createElement('abbr').setAttrs([
+    const toolFromIcon = createIconElement().getIcon(GoogleMaterialIconsName)
+    
+    const abbr = createElement('abbr')
+    abbr.setAttrs([
         ['title', toolDescription ], 
         ['data-tool', dataTool]
-    ])
+    ]).appendElements(toolFromIcon)
 
-    abbr.appendChild(toolFromIcon)
-    
     return abbr
 }
 
-async function updateStoredObjectIcon(id, newIcon) {
-    console.log(id, newIcon)
-}
+// async function updateStoredObjectIcon(id, newIcon) {
+//     console.log(id, newIcon)
+// }
 
 const toolsFunctions = {
     expandDetails(elementID) {
@@ -56,50 +54,48 @@ const toolsFunctions = {
             return
         }
 
-        const dashboardElements = (await getDashboardElements())
+        const advancedSearchSection = document.querySelector('[data-section="advanced_search"]')
+        const dashboardWrapper = document.querySelector('.dashboard-wrapper')
 
-        const { ['advancedSearch']: advancedSearchSection } = dashboardElements.sections
-        const { dashboardWrapper } = dashboardElements.wrappers
-
-        const allRenderedElements = advancedSearchSection.children
-        const renderedElementsCopy = [...allRenderedElements].slice(1)
-        
+        const allRenderedElements = [...advancedSearchSection.children].slice(1)
         const [ storedObject ] = storedObjectFound, { ['id']: storedObjectID } = storedObject
 
         const handleWithElementsVisibleCallback = el => el.getAttribute('data-id') == storedObjectID 
             ? el.style.display = 'flex'
             : el.style.display = 'none'
-        renderedElementsCopy.forEach(handleWithElementsVisibleCallback)
+        allRenderedElements.forEach(handleWithElementsVisibleCallback)
 
         dashboardWrapper.removeAttribute('style')
 
     },
+    
     async openEmojisMenu(id, x, y) {
 
         const DEFAULT_LINK = `js/database/available-icons.json`
         const response = await fetch(DEFAULT_LINK)
         const availableIcons = await response.json()
     
-        const tempIconWrapper = document.createElement('div')
-        tempIconWrapper.classList.add('temp-icons-menu')
+        const tempIconWrapperCSSStyle = [
+            ['left', x + 'px'],
+            ['top', y + 'px'],
+            ['position', 'absolute']
+        ]
+
+        const tempIconWrapper = createElement('div')
+            .setClass('temp-icons-menu')
+            .setCSSStyle(tempIconWrapperCSSStyle)
+            .addEvtListener('mouseleave', () => tempIconWrapper.remove())
+            .appendOn(getDocumentBody())
     
         const createTools = (icon) => {
             
-            const newIcon = createIconElement(icon)
+            const newIcon = createIconElement().getIcon(icon)
             newIcon.addEventListener('click', () =>  updateStoredObjectIcon(id, icon))
     
             tempIconWrapper.appendChild(newIcon)
         }
     
         availableIcons.forEach(createTools)
-    
-        tempIconWrapper.onmouseleave = () => tempIconWrapper.remove()
-    
-        tempIconWrapper.style.left = x + 'px'
-        tempIconWrapper.style.top = y + 'px'
-        tempIconWrapper.style.position = 'absolute'
-        
-        document.body.prepend(tempIconWrapper)
     }
 }
 

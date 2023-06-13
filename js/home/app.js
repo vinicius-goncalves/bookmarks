@@ -1,5 +1,5 @@
 import { loadStoredElements } from './elements-rendering.js'
-import { insertNewItem, getItemById, FavoritesDBManager } from '../database/db-manager.js'
+import { insertNewItem, getItemById } from '../database/db-manager.js'
 
 const btnInsert = document.querySelector('[data-button="insert"]')
 const btnSearch = document.querySelector('[data-button="search"]')
