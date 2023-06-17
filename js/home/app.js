@@ -1,10 +1,23 @@
-import { loadStoredElements } from './elements-rendering.js'
+import { loadStoredElements } from './elements-loader.js'
 import { insertNewItem, getItemById } from '../database/db-manager.js'
 
 const btnInsert = document.querySelector('[data-button="insert"]')
 const btnSearch = document.querySelector('[data-button="search"]')
 
 const inputContentManipulator = document.querySelector('[data-input="content-manipulator"]')
+const openDashboardBtn = document.querySelector('[data-button="open-dashboard"]')
+
+openDashboardBtn.addEventListener('click', () => {
+    
+    const target = openDashboardBtn.getAttribute('data-target')
+    const targetFound = document.querySelector(target)
+
+    if(!targetFound) {
+        return
+    }
+    
+    targetFound.removeAttribute('style')
+})
 
 function keyUpOutlineRemoverListener() {
 
@@ -30,7 +43,7 @@ function loadKeyboardShortcuts() {
     const searchAction = (event) => event.ctrlKey && event.shiftKey && event.key == 'Enter'
     const insertAction = (event) => event.ctrlKey && event.key == 'Enter'
 
-    const actionsMapping = {
+    const keyboardActions = {
         insert() {
             applyOutlineOnKeyDown('[data-button="insert"]')
             btnInsert.click()
@@ -49,12 +62,12 @@ function loadKeyboardShortcuts() {
         const isInsertAction = insertAction(event)
 
         if(isSearchAction) {
-            actionsMapping.search()
+            keyboardActions.search()
             return
         }
 
         if(isInsertAction) {
-            actionsMapping.insert()
+            keyboardActions.insert()
             return
         }
     })
@@ -76,28 +89,10 @@ function loadBtnListeners() {
     })
 }
 
-function handleWithDashboardOpenBtn() {
-    
-    const openDashboardBtn = document.querySelector('[data-button="open-dashboard"]')
-
-    openDashboardBtn.addEventListener('click', () => {
-        
-        const target = openDashboardBtn.getAttribute('data-target')
-        const targetFound = document.querySelector(target)
-
-        if(!targetFound) {
-            return
-        }
-        
-        targetFound.removeAttribute('style')
-    })
-}
-
 window.addEventListener('DOMContentLoaded', () => {
     
     loadBtnListeners()
     loadKeyboardShortcuts()
     keyUpOutlineRemoverListener()
     loadStoredElements()
-    handleWithDashboardOpenBtn()
 })

@@ -152,8 +152,8 @@ const filterTools = {
             document.body.prepend(tempFilterOptionsWrapper_div)
         })
 
-        const deleteFilterBUTTON = document.createElement('button')
-        deleteFilterBUTTON.classList.add('delete-filter-button')
+        const deleteFilterBUTTON = createElement('button')
+            .setClass('delete-filter-button')
 
         const deleteICON = createElement('span')
         deleteICON.setClass('material-icons-outlined')
@@ -175,46 +175,39 @@ const filterTools = {
     handleFirstFilterSelection(eventTarget, tempFilterID) {
         
         this.clearActiveOptionsWrapper()
-        const filterOptions = [...filtersMap.keys()]
+        const filterOptions = [...filtersMap.keys()].filter(key => !Reflect.has(proxyFilters, key))
         const tempFilterOptionsWrapper_div = this.createTempFilterOptionsWrapper(eventTarget)
         
-        const cb = option => {
+        const createLis = option => {
 
-            if(Reflect.has(proxyFilters, option)) {
-                return 
-            }
-
-            const optionForFilter_li = document.createElement('li')
-            
-            optionForFilter_li.textContent = literalFilterWords(option)
-            optionForFilter_li.addEventListener('click', () => {
+            const optionLIClickEvt = () => {
 
                 const individualFilter = document.querySelector(`[data-filter-id="${tempFilterID.getAttribute('data-filter-id')}"]`)
-                console.log()
-
-                const lastItemsFromFirstIndex = [...individualFilter.children]
-                    .filter((_, index) => index > 0)
+    
+                const lastItemsFromFirstIndex = [...individualFilter.children].filter((_, index) => index > 0)
                 lastItemsFromFirstIndex.forEach(child => child.remove())
-
+    
                 individualFilter.appendChild(this.createMiddleText())
                 individualFilter.querySelector(`[data-filter="first-selection"]`)
                     .textContent = literalFilterWords(option)
                 individualFilter.setAttribute('data-filter-key', option)
-
+    
                 const filterName = individualFilter.getAttribute('data-filter-key')
-                proxyFilters[filterName]
-
+                
                 this.handleSecondFilterSelection(option, individualFilter)
-            })
+            }
+
+            const optionFilterLI = createElement('li')
+                .setText(literalFilterWords(option))
+                .addEvtListener('click', optionLIClickEvt)
             
-            return optionForFilter_li
+            return optionFilterLI
         }
 
-        const lisCreated = filterOptions.map(cb)
+        const lisCreated = filterOptions.map(createLis)
 
         const filterQueryUL = createElement('ul')
-        filterQueryUL
-            .setClass('filter-options')
+        filterQueryUL.setClass('filter-options')
             .appendElements(...lisCreated)
             .appendOn(tempFilterOptionsWrapper_div)
 
@@ -225,7 +218,6 @@ const filterTools = {
 
 function updateFilterInformation() {
     
-
     const filtersChildren = filters.children
     const lengthFiltersChildren = filtersChildren.length
 
@@ -294,7 +286,6 @@ function createIndividualFilter() {
     })
 
     individualFilterWrapper.appendChild(firstSelectionWrapper)
-
     return individualFilterWrapper
 }
 
@@ -324,10 +315,8 @@ async function loadAllStoredObjects() {
     const advancedSearchSection = document.querySelector('[data-section="advanced_search"]')
     const dashboardElements = await handleWithDashboardStoredObjectsRendering(storedObjectsRendered)
     
-    const elsNotRenderedCallback = element => !hasElementRendered(advancedSearchSection, element)
-    const elsNotRendered = dashboardElements.filter(elsNotRenderedCallback)
-    
     const fragment = document.createDocumentFragment()
+    const elsNotRendered = dashboardElements.filter(el => !hasElementRendered(advancedSearchSection, el))
     elsNotRendered.forEach(element => fragment.appendChild(element))
     advancedSearchSection.appendChild(fragment)
 }
@@ -336,3 +325,4 @@ async function loadAdvancedFilterFunctions() {
     updateFilterInformation()
     updateCurrentActiveFiltersLength()
 }
+

@@ -1,8 +1,8 @@
-import { InitialPageTools } from '../utils/classes.js'
+import { Tool } from '../utils/classes.js'
 import { genericStoredObjectRender } from '../utils/renders.js'
 import { MainContentDBManager } from '../database/db-manager.js'
 import { startQuery, createURLFilter } from '../database/custom-query.js'
-import { getDashboardElements } from '../dashboard/main.js'
+import { HomePageStoredObject } from '../utils/web-components.js'
 
 export { loadStoredElements }
 
@@ -21,34 +21,32 @@ async function createToolFromIconName(GoogleMaterialIconsName, toolDescription, 
     return abbr
 }
 
-// async function updateStoredObjectIcon(id, newIcon) {
-//     console.log(id, newIcon)
-// }
-
 const toolsFunctions = {
+    
     expandDetails(elementID) {
         
-        const selector = `[data-description-id="${elementID}"]`
-        const descriptionElement = mainContent.querySelector(selector)
+        const elDescriptionSelector = `[data-description-id="${elementID}"]`
+        const descriptionEl = mainContent.querySelector(elDescriptionSelector)
 
-        if(!descriptionElement) {
+        if(!descriptionEl) {
             return
         }
 
-        const inlineStyle = descriptionElement.style
+        const inlineStyle = descriptionEl.style
         const heightLength = window.parseInt(inlineStyle.height.replace('px', ''))
         
         if(!heightLength) {
-            inlineStyle.height = `${descriptionElement.scrollHeight}px`
+            inlineStyle.setProperty('height', `${descriptionEl.scrollHeight}px`)
             return
         }
 
-        inlineStyle.height = '0px'
-
+        inlineStyle.setProperty('height', '0px')
     },
+
     async sendToDashboard(elementID) {
 
-        const storedObjectFound = await startQuery(createURLFilter({ id: elementID }))
+        const URLFilter = createURLFilter({ id: elementID })
+        const storedObjectFound = await startQuery(URLFilter)
     
         if(!storedObjectFound) {
             return
@@ -71,8 +69,8 @@ const toolsFunctions = {
     
     async openEmojisMenu(id, x, y) {
 
-        const DEFAULT_LINK = `js/database/available-icons.json`
-        const response = await fetch(DEFAULT_LINK)
+        const AVAILABLE_ICONS = `js/database/available-icons.json`
+        const response = await fetch(AVAILABLE_ICONS)
         const availableIcons = await response.json()
     
         const tempIconWrapperCSSStyle = [
@@ -104,13 +102,14 @@ async function loadStoredElements() {
     const storedItems = await MainContentDBManager.getAll()
 
     const fragment = document.createDocumentFragment()
-    const renderStoredObjectsCallback = storedItems.map(item => genericStoredObjectRender(item))
+    // const renderStoredObjectsCallback = storedItems.map((item) => genericStoredObjectRender(item))
+    const renderStoredObjectsCallback = storedItems.map((storeObject) => new HomePageStoredObject(storeObject, { showTools: true }))
     const genericStoredObjectsRendered = await Promise.all(renderStoredObjectsCallback)
 
     const toolsSettings = [
-        new InitialPageTools('expand_more', 'Click to expand the task', 'expand-details'),
-        new InitialPageTools('north_east', 'Track down this task on dashboard', 'go-to-dashboard'),
-        new InitialPageTools('emoji_emotions', 'Change task emoji', 'change-emoji')
+        new Tool('expand_more', 'Click to expand the task', 'expand-details'),
+        new Tool('north_east', 'Track down this task on dashboard', 'go-to-dashboard'),
+        new Tool('emoji_emotions', 'Change task emoji', 'change-emoji')
     ]
 
     const toolsEvents = [
@@ -152,7 +151,7 @@ async function loadStoredElements() {
         }
     ]
 
-    const renderedObjectsModified = genericStoredObjectsRendered.map(async (currElement) => {
+    const elsInitialPage = genericStoredObjectsRendered.map(async (currElement) => {
 
         const { element, toolsWrapper } = currElement
 
@@ -167,6 +166,8 @@ async function loadStoredElements() {
             return toolCreated
         }
 
+        console.log(currElement)
+
         const toolsCreated = await Promise.all(toolsSettings.map(createToolsFunc))
         toolsCreated.forEach((tool) => toolsWrapper.appendChild(tool))
 
@@ -180,7 +181,7 @@ async function loadStoredElements() {
         return element
     })
 
-    const modifiedElementsResolved = await Promise.all(renderedObjectsModified)
+    const modifiedElementsResolved = await Promise.all(elsInitialPage)
     modifiedElementsResolved.forEach(item => fragment.appendChild(item))
     mainContent.appendChild(fragment)
 }

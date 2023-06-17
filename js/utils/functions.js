@@ -4,7 +4,8 @@ export {
     clearLoaders,
     hasElementRendered,
     updateDOMIcon,
-    randomUUID
+    randomUUID,
+    randomID
 }
 
 ;(() => {
@@ -121,7 +122,10 @@ export {
                 const someIsNotNodeInstance = elements.some(element => !Node[Symbol.hasInstance](element))
 
                 if(someIsNotNodeInstance) {
-                    throw new DOMException('Some of the elements passed are not valid DOM references.')
+
+                    console.log(this.constructor)
+
+                    throw new DOMException(`Some of the elements passed are not valid DOM references. The error was found at:`)
                 }
 
                 const fragment = document.createDocumentFragment()
@@ -163,16 +167,19 @@ export {
 
         return span
     }
+
+    Window.prototype.getDocumentBody = function() {
+        return document.body
+    }
     
 
     Node.prototype.getTagName = function() {
         return this.nodeName.toLowerCase()
     }
-
-    Window.prototype.getDocumentBody = function() {
-        return this.document.body
+    
+    Array.prototype.group = function(callback) {
+        return this.reduce((acc, item) => (acc[callback(item)] ??= []).push(item) && acc, {})
     }
-
 })()
 
 const createPromise = (callback) => new Promise(callback)
@@ -239,4 +246,8 @@ function randomUUID() {
         return (char === 'x' ? random : random & 0x3 | 0x8).toString(16)
     })
     return uuid
+}
+
+function randomID() {
+    return 'x'.repeat(15).replace(/x/g, () => ((Math.random() * 16) % 16 | 0).toString(16))
 }
